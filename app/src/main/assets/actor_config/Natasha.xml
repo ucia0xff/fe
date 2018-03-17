@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actor>
+    <!--配置信息-->
+    <party>0</party><!--阵营-->
+    <xy>10,7</xy><!--坐标-->
+
+    <!--角色信息-->
+    <actor-key>Natasha</actor-key><!--角色标识-->
+    <career-key>SisterNatasha</career-key><!--职业标识-->
+    <name>娜塔莎</name><!--角色名-->
+    <info>古拉德帝国出身的修女，认真贤淑的美丽女性</info><!--角色说明-->
+    <face>Natasha.png</face><!--角色头像-->
+
+    <!--角色能力修正（相对于职业初始能力）-->
+    <adj-lv></adj-lv><!--等级-->
+    <adj-mhp>2</adj-mhp><!--最大HP-->
+    <adj-str></adj-str><!--力量-->
+    <adj-mag>1</adj-mag><!--魔力-->
+    <adj-skl>2</adj-skl><!--技术-->
+    <adj-spd>6</adj-spd><!--速度-->
+    <adj-luc>6</adj-luc><!--幸运-->
+    <adj-def>2</adj-def><!--守备-->
+    <adj-res></adj-res><!--魔防-->
+    <adj-mov></adj-mov><!--移动-->
+    <adj-con></adj-con><!--体格-->
+    <adj-mnt></adj-mnt><!--坐骑-->
+    <adj-aff>4</adj-aff><!--属性-->
+
+    <!--角色成长率-->
+    <grow-mhp>40</grow-mhp>
+    <grow-str>10</grow-str>
+    <grow-mag>35</grow-mag>
+    <grow-skl>40</grow-skl>
+    <grow-spd>45</grow-spd>
+    <grow-luc>75</grow-luc>
+    <grow-def>15</grow-def>
+    <grow-res>60</grow-res>
+
+    <!--武器熟练度-->
+    <exp-swd></exp-swd>
+    <exp-lan></exp-lan>
+    <exp-axe></exp-axe>
+    <exp-bow></exp-bow>
+    <exp-stf>31</exp-stf>
+    <exp-anm></exp-anm>
+    <exp-lgt></exp-lgt>
+    <exp-drk></exp-drk>
+</actor>
