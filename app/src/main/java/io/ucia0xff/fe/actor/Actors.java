@@ -18,4 +18,8 @@ public class Actors {
         }
         return null;
     }
+
+    public static Map<String, Actor> getActors() {
+        return actors;
+    }
 }

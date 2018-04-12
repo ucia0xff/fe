@@ -20,5 +20,17 @@ public class CursorAnims {
         cursorAnim = new CursorAnim(bitmaps, true);
         cursorAnim.setDurations(new int[]{200, 300});
         cursorAnims.put(Values.CURSOR_DYNAMIC, cursorAnim);
+
+        bitmaps = Anim.splitBitmap(bitmap, 3, 1, 32);
+        cursorAnim = new CursorAnim(bitmaps, true);
+        cursorAnims.put(Values.CURSOR_STATIC, cursorAnim);
+
+        bitmaps = Anim.splitBitmap(bitmap, 4, 1, 32);
+        cursorAnim = new CursorAnim(bitmaps, true);
+        cursorAnims.put(Values.CURSOR_ALLOWED, cursorAnim);
+
+        bitmaps = Anim.splitBitmap(bitmap, 5, 1, 32);
+        cursorAnim = new CursorAnim(bitmaps, true);
+        cursorAnims.put(Values.CURSOR_FORBIDEN, cursorAnim);
     }
 }

@@ -23,9 +23,9 @@ public class GameView extends SurfaceView
 
     public static int parties = 0;//阵营总数
     public static int nowParty = 0;//当前行动的阵营
-//    public static Actor[] actors = null;//所有角色列表
-//    public static Actor selectedActor = null;//当前角色
-//    public static Actor targetActor = null;//目标角色
+    public static java.util.Map<String, Actor> actors = null;//所有角色列表
+    public static Actor selectedActor = null;//当前角色
+    public static Actor targetActor = null;//目标角色
     Map map;
     CursorAnim cursor;
     MapInfo mapInfo;
@@ -82,16 +82,14 @@ public class GameView extends SurfaceView
         paint = new Paint();
         paint.setTextSize(80);
         paint.setColor(Color.WHITE);
-//        actors = new Actor[1];
-//            actors[0] = new Actor("Natasha");
-//            Career career = new Career("Sister");
-            map = new Map("map1");
-            mapInfo = new MapInfo(map);
-            cursor = CursorAnims.cursorAnims.get(Values.CURSOR_DYNAMIC);
-            actor = Actors.actors.get("Natasha");
-            move = new ActorMoveHelper(map);
-            move.setSrcActor(actor);
-//        setParties(actors);
+        actors = Actors.getActors();
+        map = new Map("map1");
+        mapInfo = new MapInfo(map);
+        cursor = CursorAnims.cursorAnims.get(Values.CURSOR_DYNAMIC);
+        actor = Actors.actors.get("Natasha");
+        move = new ActorMoveHelper(map);
+        move.setSrcActor(actor);
+        setParties(actors);
 //        actorInfoPanel = new ActorInfoPanel(context);
 //        gameOptions = new GameOptions(context);
 
@@ -105,91 +103,85 @@ public class GameView extends SurfaceView
 
     //绘制游戏画面
     protected void Draw() {
-        Map.DrawMap(canvas, paint, xyOffset);
-        cursor.drawAnim(canvas, paint, cursorXY, xyOffset);
-        mapInfo.show(canvas, paint, isLeft);
-        move.drawCanMove(canvas, paint, xyOffset);
-        actor.drawAnim(canvas, paint, xyOffset);
-//        setParties(actors);
-/*        switch (GAME_CASE) {
+        switch (GAME_CASE) {
             case Values.CASE_NORMAL:
-                tileIndex.DrawMap(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                DrawActors(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                DrawCursor(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-//                terrainInfoPanel.DisplayTileInfo(canvas, paint, isLeft);
+                map.DrawMap(canvas, paint, xyOffset);
+                DrawActors(canvas, paint, xyOffset);
+                DrawCursor(canvas, paint, xyOffset);
+                mapInfo.show(canvas, paint, isLeft);
                 break;
             case Values.CASE_BEFORE_MOVE:
-                tileIndex.DrawMap(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                DrawMoveArea(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                DrawActors(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                DrawCursor(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
+                map.DrawMap(canvas, paint, xyOffset);
+                DrawMoveArea(canvas, paint, xyOffset);
+                DrawActors(canvas, paint, xyOffset);
+                DrawCursor(canvas, paint, xyOffset);
                 break;
             case Values.CASE_MOVING:
-                tileIndex.DrawMap(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                DrawActors(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                Moving(selectedActor);
+                map.DrawMap(canvas, paint, xyOffset);
+                DrawActors(canvas, paint, xyOffset);
+//                Moving(selectedActor);
                 break;
             case Values.CASE_AFTER_MOVE:
-                tileIndex.DrawMap(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                DrawActors(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                DisplayActorOptions(selectedActor);
+                map.DrawMap(canvas, paint, xyOffset);
+                DrawActors(canvas, paint, xyOffset);
+//                DisplayActorOptions(selectedActor);
                 break;
             case Values.CASE_BEFORE_ACT:
                 break;
             case Values.CASE_SHOW_ACTOR_INFO:
-                actorInfoPanel.DisplayActorInfo(canvas, paint, selectedActor);
+//                actorInfoPanel.DisplayActorInfo(canvas, paint, selectedActor);
                 break;
             case Values.CASE_SHOW_GAME_OPTIONS:
-                tileIndex.DrawMap(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                DrawActors(canvas, paint, mapOffsetScreenX, mapOffsetScreenY);
-                DisplayGameOptions(canvas, paint, isLeft);
+                map.DrawMap(canvas, paint, xyOffset);
+                DrawActors(canvas, paint, xyOffset);
+//                DisplayGameOptions(canvas, paint, isLeft);
                 break;
-        }*/
+        }
     }
 
-/*    private void DrawActors(Canvas canvas, Paint paint, int offsetX, int offsetY){
-        for (Actor actor : actors) {
+    private void DrawActors(Canvas canvas, Paint paint, int[] xyOffset){
+        for (Actor actor : actors.values()) {
             if (actor.equals(selectedActor))
                 continue;
-            actor.RenderAnimation(canvas, paint, offsetX, offsetY);
+            actor.drawAnim(canvas, paint, xyOffset);
         }
         if (selectedActor!=null)
-            selectedActor.RenderAnimation(canvas, paint, offsetX, offsetY);
-    }*/
+            selectedActor.drawAnim(canvas, paint, xyOffset);
+    }
 
     //显示光标
-/*    private void DrawCursor(Canvas canvas, Paint paint, int offsetX, int offsetY) {
-        selectedActor = getActor(cursorXY[0], cursorXY[1]);
+    private void DrawCursor(Canvas canvas, Paint paint, int[] xyOffset) {
+        selectedActor = Actors.getActor(cursorXY);
         if (selectedActor==null || selectedActor.getParty() != Values.PARTY_PLAYER || selectedActor.isStandby()) {
-            cursor = CursorAnims.CURSOR_ANIMS.get(Values.CURSOR_DYNAMIC);
+            cursor = CursorAnims.cursorAnims.get(Values.CURSOR_DYNAMIC);
         } else {
-            cursor = CursorAnims.CURSOR_ANIMS.get(Values.CURSOR_STATIC);
+            cursor = CursorAnims.cursorAnims.get(Values.CURSOR_STATIC);
             selectedActor.getCursor();
         }
-        cursor.drawAnim(canvas, paint, new int[]{cursorXY[0], cursorXY[1]},offsetX, offsetY);
-    }*/
+        cursor.drawAnim(canvas, paint, cursorXY, xyOffset);
+    }
 
     //显示移动区域
-/*    public void DrawMoveArea(Canvas canvas, Paint paint, int offsetX, int offsetY) {
+    public void DrawMoveArea(Canvas canvas, Paint paint, int[] xyOffset) {
         if (selectedActor == null) return;
-        move.setActor(selectedActor);
-        move.DrawMoveArea(canvas, paint, offsetX, offsetY);
-    }*/
+        move.setSrcActor(selectedActor);
+        move.drawCanMove(canvas, paint, xyOffset);
+    }
 
 
     //显示行动选项
-/*    public void DisplayActorOptions(Actor actor) {
+    public void DisplayActorOptions(Actor actor) {
         actor.setStandby(true);
         cursorXY[0] = actor.getXyTile()[0];
         cursorXY[1] = actor.getXyTile()[1];
         GAME_CASE = Values.CASE_NORMAL;
-    }*/
+    }
 
     //显示游戏选项
-/*    public void DisplayGameOptions(Canvas canvas, Paint paint, Boolean isLeft){
+    public void DisplayGameOptions(Canvas canvas, Paint paint, Boolean isLeft){
         if (GAME_CASE!=Values.CASE_SHOW_GAME_OPTIONS) return;
-        gameOptions.DisplayGameOptions(canvas, paint, isLeft);
-    }*/
+//        gameOptions.DisplayGameOptions(canvas, paint, isLeft);
+    }
 
     //长按
     @Override
@@ -223,8 +215,8 @@ public class GameView extends SurfaceView
     //单击
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
-//        if (nowParty!=Values.PARTY_PLAYER)
-//            return true;
+        if (nowParty!=Values.PARTY_PLAYER)
+            return true;
         xyInScreen[0] = (int) e.getX();
         xyInScreen[1] = (int) e.getY();
         xyInMap[0] = xyInScreen[0] - xyOffset[0];
@@ -235,7 +227,7 @@ public class GameView extends SurfaceView
         cursorXY[1] = xyInTile[1];
         isLeft = xyInScreen[0] < Values.SCREEN_WIDTH / 2;
         isDown = xyInScreen[1] > Values.SCREEN_HEIGHT / 2;
-/*        targetActor = getActor(xyInTile[0], xyInTile[1]);
+        targetActor = Actors.getActor(xyInTile);
         switch (GAME_CASE) {
             //一般阶段
             case Values.CASE_NORMAL:
@@ -243,18 +235,18 @@ public class GameView extends SurfaceView
                 cursorXY[1] = xyInTile[1];
                 if (selectedActor != null)
                     selectedActor.lostCursor();
-                selectedActor = getActor(cursorXY[0], cursorXY[1]);
+                selectedActor = Actors.getActor(cursorXY);
                 if (selectedActor != null)
                     selectedActor.getCursor();
-                isLeft = (xInScreen < Values.SCREEN_WIDTH / 2) ? true : false;
-                isDown = (yInScreen > Values.SCREEN_HEIGHT / 2) ? true : false;
+                isLeft = (xyInScreen[0] < Values.SCREEN_WIDTH / 2) ? true : false;
+                isDown = (xyInScreen[1] > Values.SCREEN_HEIGHT / 2) ? true : false;
                 break;
             //移动前
             case Values.CASE_BEFORE_MOVE:
-                Move.NodeList canMove = move.getCanMove();
+                ActorMoveHelper.NodeList canMove = move.getCanMove();
                 if (selectedActor.getParty() == Values.PARTY_PLAYER && canMove.indexOf(new int[]{xyInTile[0], xyInTile[1]}) != -1) {
                     if (targetActor == null || targetActor.equals(selectedActor)) {//格子上没有单位或者是自己
-                        directions = move.getMoveDirections(new int[]{xyInTile[0], xyInTile[1]});
+//                        directions = move.getMoveDirections(xyInTile);
                         GAME_CASE = Values.CASE_MOVING;
                     }
                     else{//格子上有单位且不是自己
@@ -274,8 +266,8 @@ public class GameView extends SurfaceView
                         selectedActor.getCursor();
                     GAME_CASE = Values.CASE_NORMAL;
                 }
-                isLeft = (xInScreen < Values.SCREEN_WIDTH / 2) ? true : false;
-                isDown = (yInScreen > Values.SCREEN_HEIGHT / 2) ? true : false;
+                isLeft = (xyInScreen[0] < Values.SCREEN_WIDTH / 2) ? true : false;
+                isDown = (xyInScreen[1] > Values.SCREEN_HEIGHT / 2) ? true : false;
                 break;
             //显示角色信息
             case Values.CASE_SHOW_ACTOR_INFO:
@@ -283,34 +275,34 @@ public class GameView extends SurfaceView
             case Values.CASE_MOVING:
                 break;
             case Values.CASE_SHOW_GAME_OPTIONS:
-                if (gameOptions.CheckOption(xInScreen, yInScreen, isLeft) > GameOptions.OPTIONS.length){
+                /*if (gameOptions.CheckOption(xInScreen, yInScreen, isLeft) > GameOptions.OPTIONS.length){
                     GAME_CASE = Values.CASE_NORMAL;
-                }
+                }*/
                 break;
             default:
                 GAME_CASE = Values.CASE_NORMAL;
-        }*/
+        }
         return true;
     }
 
     //双击
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-//        if (nowParty!=Values.PARTY_PLAYER)
-//            return true;
-/*         xInScreen = (int) e.getX();
-        yInScreen = (int) e.getY();
-        xInMap = xInScreen - mapOffsetScreenX;
-        yInMap = yInScreen - mapOffsetScreenY;
-        xyInTile[0] = xInMap / Values.MAP_TILE_WIDTH;
-        xyInTile[1] = yInMap / Values.MAP_TILE_HEIGHT;
+        if (nowParty!=Values.PARTY_PLAYER)
+            return true;
+        xyInScreen[0] = (int) e.getX();
+        xyInScreen[1] = (int) e.getY();
+        xyInMap[0] = xyInScreen[0] - xyOffset[0];
+        xyInMap[1] = xyInScreen[1] - xyOffset[1];
+        xyInTile[0] = xyInMap[0] / Values.MAP_TILE_WIDTH;
+        xyInTile[1] = xyInMap[1] / Values.MAP_TILE_HEIGHT;
         switch (GAME_CASE) {
             case Values.CASE_NORMAL:
                 cursorXY[0] = xyInTile[0];
                 cursorXY[1] = xyInTile[1];
                 if (selectedActor != null)
                     selectedActor.lostCursor();
-                selectedActor = getActor(cursorXY[0], cursorXY[1]);
+                selectedActor = Actors.getActor(cursorXY);
                 if (selectedActor == null || selectedActor.isStandby()) {
                     GAME_CASE = Values.CASE_SHOW_GAME_OPTIONS;
                 }else{
@@ -320,18 +312,18 @@ public class GameView extends SurfaceView
                     }
                     GAME_CASE = Values.CASE_BEFORE_MOVE;
                 }
-                isLeft = (xInScreen < Values.SCREEN_WIDTH / 2) ? true : false;
-                isDown = (yInScreen > Values.SCREEN_HEIGHT / 2) ? true : false;
+                isLeft = (xyInScreen[0] < Values.SCREEN_WIDTH / 2) ? true : false;
+                isDown = (xyInScreen[1] > Values.SCREEN_HEIGHT / 2) ? true : false;
                 break;
             case Values.CASE_SHOW_GAME_OPTIONS:
-                gameOptions.HandleOption(xInScreen,yInScreen,isLeft);
+//                gameOptions.HandleOption(xInScreen,yInScreen,isLeft);
                 GAME_CASE = Values.CASE_NORMAL;
                 break;
             case Values.CASE_SHOW_ACTOR_INFO:
                 GAME_CASE = Values.CASE_NORMAL;
             default:
                 break;
-        }*/
+        }
         return true;
     }
 
@@ -345,13 +337,13 @@ public class GameView extends SurfaceView
      */
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-/*        switch (GAME_CASE) {
+        switch (GAME_CASE) {
             case Values.CASE_NORMAL:
             case Values.CASE_BEFORE_MOVE:
             case Values.CASE_MOVING:
             case Values.CASE_AFTER_MOVE:
             case Values.CASE_BEFORE_ACT:
-            case Values.CASE_SELECT_ITEM:*/
+            case Values.CASE_SELECT_ITEM:
                 if (xyOffset[0] - (int) distanceX + map.getMapWidth() <= Values.SCREEN_WIDTH)//向左滑到了最右
                     xyOffset[0] = -(map.getMapWidth() - Values.SCREEN_WIDTH);//偏移量=地图宽度-屏幕宽度，使地图右边界在屏幕右边界
                 else if (xyOffset[0] - (int) distanceX >= 0)//最左
@@ -362,12 +354,12 @@ public class GameView extends SurfaceView
                     xyOffset[1] = -(map.getMapHeight() - Values.SCREEN_HEIGHT);
                 else if (xyOffset[1] - (int) distanceY >= 0)//最上
                     xyOffset[1] = 0;
-                else xyOffset[1] -= (int) distanceY;/*
+                else xyOffset[1] -= (int) distanceY;
                 break;
             case Values.CASE_SHOW_ACTOR_INFO:
                 break;
             default:
-        }*/
+        }
         return true;
     }
 
@@ -419,16 +411,17 @@ public class GameView extends SurfaceView
         }
     }*/
 
-/*    public void setParties(Actor[] actors){
+    public void setParties(java.util.Map<String, Actor> actors){
         parties = 0;
         int[] partyCount = new int[Values.PARTY_COUNT];
-        for (Actor actor:actors){
+
+        for (Actor actor:actors.values()){
             partyCount[actor.getParty()]++;
         }
         for (int n:partyCount){
             if (n>0) parties++;
         }
-    }*/
+    }
 
     @Override
     public boolean onDoubleTapEvent(MotionEvent e) {
@@ -501,13 +494,6 @@ public class GameView extends SurfaceView
         return false;
     }
 
-    //判断单击点是否有角色
-/*    public static Actor getActor(int xTile, int yTile) {
-        for (Actor actor : actors)
-            if (actor.getXyTile()[0] == xTile && actor.getXyTile()[1] == yTile)
-                return actor;
-        return null;
-    }*/
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
