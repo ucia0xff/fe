@@ -12,10 +12,17 @@ public class ActorAnims {
     public static Map<String, ActorAnim> actorAnims = new HashMap<String, ActorAnim>();
 
     static {
+        //娜塔莎静态图标
         bitmap = Anim.readBitMap("actor_anim/SisterNatashaPlayerStatic.png");
         bitmaps = Anim.splitBitmap(bitmap, 1, 3, 16);
         ActorAnim actorAnim = new ActorAnim(bitmaps, true);
         actorAnim.setDurations(400);
         actorAnims.put("SisterNatashaPlayerStatic", actorAnim);
+
+        bitmap = Anim.readBitMap("actor_anim/SisterNatashaPlayerMove.png");
+        bitmaps = Anim.splitBitmap(bitmap, 13, 3, 32);
+        actorAnim = new ActorAnim(bitmaps, true);
+        actorAnim.setDurations(200);
+        actorAnims.put("SisterNatashaPlayerDynamic", actorAnim);
     }
 }

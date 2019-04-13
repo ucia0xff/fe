@@ -57,20 +57,20 @@ public class Map {
             is = Values.CONTEXT.getAssets().open("map_config/" + mapName + ".map");
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-            //第一行是用到的地图块集
+            //第一行是用到的地图块集文件
             String line = br.readLine();//第一行是地图块集文件名
             String tilesetName = "tile_set/" + line + ".png";
             res = Anim.readBitMap(tilesetName);
             resWidthTileCount = res.getWidth() / Values.RES_TILE_WIDTH;
             resHeightTileCount = res.getHeight() / Values.RES_TILE_HEIGHT;
 
-            //第二行是地图高和宽
+            //第二行是地图高和宽的格子数
             line = br.readLine();
             String[] mapSize = line.split(" ");
             mapWidthTileCount = Integer.parseInt(mapSize[1]);//地图水平方向格子数
             mapHeightTileCount = Integer.parseInt(mapSize[0]);//地图竖直方向格子数
-            mapWidth = mapWidthTileCount * Values.MAP_TILE_WIDTH;///地图实际宽度
-            mapHeight = mapHeightTileCount * Values.MAP_TILE_HEIGHT;//地图实际高度
+            mapWidth = mapWidthTileCount * Values.MAP_TILE_WIDTH;///地图总像素宽度
+            mapHeight = mapHeightTileCount * Values.MAP_TILE_HEIGHT;//地图总像素高度
 
             //之后是地图每个格子在图集中的序号
             tileIndex = new int[mapHeightTileCount][mapWidthTileCount];

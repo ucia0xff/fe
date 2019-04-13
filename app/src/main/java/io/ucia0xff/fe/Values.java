@@ -5,7 +5,7 @@ import android.graphics.Rect;
 
 public class Values {
     public static Context CONTEXT = null;
-    public static int FPS = 50;
+    public static int FPS = 60;
 
     //屏幕宽高
     public static int SCREEN_WIDTH = 1080;
@@ -51,7 +51,7 @@ public class Values {
     public static final int CASE_NORMAL = 0;//未选中角色
     public static final int CASE_BEFORE_MOVE = 1;//移动前、显示移动范围
     public static final int CASE_MOVING = 2;//移动中
-    public static final int CASE_AFTER_MOVE = 3;//移动结束、显示行动菜单
+    public static final int CASE_AFTER_MOVE = 3;//移动后、显示行动菜单
     public static final int CASE_SELECT_ITEM = 4;//选择要使用的武器/杖/道具
     public static final int CASE_BEFORE_ACT = 5;//选择目标/操作
     public static final int CASE_ACTING = 6;//行动中
@@ -86,7 +86,7 @@ public class Values {
     public static final int WEAPON_LEVEL_S = 251;
     public static final int WEAPON_LEVEL_SS = 255;
 
-    public static final String WEAPON__ = "—";
+    public static final String WEAPON__ = "-";
     public static final String WEAPON_E = "E";
     public static final String WEAPON_D = "D";
     public static final String WEAPON_C = "C";

@@ -237,6 +237,7 @@ public class Actor {
         ActorAnims.actorAnims.get(nowAnim).drawAnim(canvas, paint, xyTile, xyOffset);
     }
 
+    //角色被取消选中
     public void lostCursor() {
         if (isStandby()) {
             setNowAnim(Values.MAP_ANIM_STANDBY);
@@ -245,13 +246,14 @@ public class Actor {
         }
     }
 
+    //角色被选中
     public void getCursor() {
-        if (isStandby()) {
-            setNowAnim(Values.MAP_ANIM_STANDBY);
-        } else if (party != Values.PARTY_PLAYER) {
-            setNowAnim(Values.MAP_ANIM_STATIC);
-        } else {
-            setNowAnim(Values.MAP_ANIM_DYNAMIC);
+        if (isStandby()) {//已待机
+            setNowAnim(Values.MAP_ANIM_STANDBY);//待机图标
+        } else if (party != Values.PARTY_PLAYER) {//未待机、非我方角色
+            setNowAnim(Values.MAP_ANIM_STATIC);//静态图标
+        } else {//未待机、我方角色
+            setNowAnim(Values.MAP_ANIM_DYNAMIC);//动态图标
         }
     }
 

@@ -23,11 +23,11 @@ public class GameView extends SurfaceView
 
     public static int parties = 0;//阵营总数
     public static int nowParty = 0;//当前行动的阵营
-    public static java.util.Map<String, Actor> actors = null;//所有角色列表
+    public static java.util.Map<String, Actor> actors = null;//场上所有角色的列表
     public static Actor selectedActor = null;//当前角色
     public static Actor targetActor = null;//目标角色
-    Map map;
-    CursorAnim cursor;
+    Map map;//地图对象
+    CursorAnim cursor;//鼠标动画
     MapInfo mapInfo;
     ActorMoveHelper move;
     Actor actor;
@@ -56,11 +56,11 @@ public class GameView extends SurfaceView
     public static int[] xyOffset = {0,0};
 
     //单击点在屏幕上的像素坐标
-    private int[] xyInScreen = {0,0};
+    private int[] xyInScrPx = {0,0};
     //单击点在地图上的像素坐标
-    private int[] xyInMap = {0,0};
+    private int[] xyInMapPx = {0,0};
     //单击点在地图上的格子坐标
-    private int[] xyInTile = {0,0};
+    private int[] xyInMapTile = {0,0};
 
     //是否在屏幕某区域
     private Boolean isLeft = true;
@@ -139,14 +139,15 @@ public class GameView extends SurfaceView
         }
     }
 
+    //显示地图上所有角色
     private void DrawActors(Canvas canvas, Paint paint, int[] xyOffset){
         for (Actor actor : actors.values()) {
-            if (actor.equals(selectedActor))
-                continue;
+//            if (actor.equals(selectedActor))
+//                continue;
             actor.drawAnim(canvas, paint, xyOffset);
         }
-        if (selectedActor!=null)
-            selectedActor.drawAnim(canvas, paint, xyOffset);
+//        if (selectedActor!=null)
+//            selectedActor.drawAnim(canvas, paint, xyOffset);
     }
 
     //显示光标
@@ -192,12 +193,12 @@ public class GameView extends SurfaceView
         yInScreen = (int) e.getY();
         xInMap = xInScreen - mapOffsetScreenX;
         yInMap = yInScreen - mapOffsetScreenY;
-        xyInTile[0] = xInMap / Values.MAP_TILE_WIDTH;
-        xyInTile[1] = yInMap / Values.MAP_TILE_HEIGHT;
+        xyInMapTile[0] = xInMap / Values.MAP_TILE_WIDTH;
+        xyInMapTile[1] = yInMap / Values.MAP_TILE_HEIGHT;
         switch (GAME_CASE) {
             case Values.CASE_NORMAL:
-                cursorXY[0] = xyInTile[0];
-                cursorXY[1] = xyInTile[1];
+                cursorXY[0] = xyInMapTile[0];
+                cursorXY[1] = xyInMapTile[1];
                 if (selectedActor != null)
                     selectedActor.lostCursor();
                 selectedActor = getActor(cursorXY[0], cursorXY[1]);
@@ -215,59 +216,64 @@ public class GameView extends SurfaceView
     //单击
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
-        if (nowParty!=Values.PARTY_PLAYER)
+        if (nowParty!=Values.PARTY_PLAYER)//非我方阶段不响应屏幕操作
             return true;
-        xyInScreen[0] = (int) e.getX();
-        xyInScreen[1] = (int) e.getY();
-        xyInMap[0] = xyInScreen[0] - xyOffset[0];
-        xyInMap[1] = xyInScreen[1] - xyOffset[1];
-        xyInTile[0] = xyInMap[0] / Values.MAP_TILE_WIDTH;
-        xyInTile[1] = xyInMap[1] / Values.MAP_TILE_HEIGHT;
-        cursorXY[0] = xyInTile[0];
-        cursorXY[1] = xyInTile[1];
-        isLeft = xyInScreen[0] < Values.SCREEN_WIDTH / 2;
-        isDown = xyInScreen[1] > Values.SCREEN_HEIGHT / 2;
-        targetActor = Actors.getActor(xyInTile);
+        //单击点在屏幕像素上的坐标
+        xyInScrPx[0] = (int) e.getX();
+        xyInScrPx[1] = (int) e.getY();
+
+        //单击点在地图像素上的坐标
+        xyInMapPx[0] = xyInScrPx[0] - xyOffset[0];
+        xyInMapPx[1] = xyInScrPx[1] - xyOffset[1];
+
+        //单击点在地图格子上的坐标
+        xyInMapTile[0] = xyInMapPx[0] / Values.MAP_TILE_WIDTH;
+        xyInMapTile[1] = xyInMapPx[1] / Values.MAP_TILE_HEIGHT;
+        cursorXY[0] = xyInMapTile[0];
+        cursorXY[1] = xyInMapTile[1];
+        isLeft = xyInScrPx[0] < Values.SCREEN_WIDTH / 2;
+        isDown = xyInScrPx[1] > Values.SCREEN_HEIGHT / 2;
+        targetActor = Actors.getActor(xyInMapTile);
         switch (GAME_CASE) {
             //一般阶段
             case Values.CASE_NORMAL:
-                cursorXY[0] = xyInTile[0];
-                cursorXY[1] = xyInTile[1];
+                cursorXY[0] = xyInMapTile[0];
+                cursorXY[1] = xyInMapTile[1];
                 if (selectedActor != null)
                     selectedActor.lostCursor();
                 selectedActor = Actors.getActor(cursorXY);
                 if (selectedActor != null)
                     selectedActor.getCursor();
-                isLeft = (xyInScreen[0] < Values.SCREEN_WIDTH / 2) ? true : false;
-                isDown = (xyInScreen[1] > Values.SCREEN_HEIGHT / 2) ? true : false;
+                isLeft = (xyInScrPx[0] < Values.SCREEN_WIDTH / 2) ? true : false;
+                isDown = (xyInScrPx[1] > Values.SCREEN_HEIGHT / 2) ? true : false;
                 break;
             //移动前
             case Values.CASE_BEFORE_MOVE:
                 ActorMoveHelper.NodeList canMove = move.getCanMove();
-                if (selectedActor.getParty() == Values.PARTY_PLAYER && canMove.indexOf(new int[]{xyInTile[0], xyInTile[1]}) != -1) {
+                if (selectedActor.getParty() == Values.PARTY_PLAYER && canMove.indexOf(new int[]{xyInMapTile[0], xyInMapTile[1]}) != -1) {
                     if (targetActor == null || targetActor.equals(selectedActor)) {//格子上没有单位或者是自己
-//                        directions = move.getMoveDirections(xyInTile);
+//                        directions = move.getMoveDirections(xyInMapTile);
                         GAME_CASE = Values.CASE_MOVING;
                     }
                     else{//格子上有单位且不是自己
-                        cursorXY[0] = xyInTile[0];
-                        cursorXY[1] = xyInTile[1];
+                        cursorXY[0] = xyInMapTile[0];
+                        cursorXY[1] = xyInMapTile[1];
                         selectedActor.lostCursor();
                         selectedActor=targetActor;
                         selectedActor.getCursor();
                         GAME_CASE = Values.CASE_NORMAL;
                     }
                 }else {//非玩家单位
-                    cursorXY[0] = xyInTile[0];
-                    cursorXY[1] = xyInTile[1];
+                    cursorXY[0] = xyInMapTile[0];
+                    cursorXY[1] = xyInMapTile[1];
                     selectedActor.lostCursor();
                     selectedActor = targetActor;
                     if (selectedActor != null)
                         selectedActor.getCursor();
                     GAME_CASE = Values.CASE_NORMAL;
                 }
-                isLeft = (xyInScreen[0] < Values.SCREEN_WIDTH / 2) ? true : false;
-                isDown = (xyInScreen[1] > Values.SCREEN_HEIGHT / 2) ? true : false;
+                isLeft = (xyInScrPx[0] < Values.SCREEN_WIDTH / 2) ? true : false;
+                isDown = (xyInScrPx[1] > Values.SCREEN_HEIGHT / 2) ? true : false;
                 break;
             //显示角色信息
             case Values.CASE_SHOW_ACTOR_INFO:
@@ -288,32 +294,38 @@ public class GameView extends SurfaceView
     //双击
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-        if (nowParty!=Values.PARTY_PLAYER)
+        if (nowParty!=Values.PARTY_PLAYER)//非我方阶段不响应屏幕操作
             return true;
-        xyInScreen[0] = (int) e.getX();
-        xyInScreen[1] = (int) e.getY();
-        xyInMap[0] = xyInScreen[0] - xyOffset[0];
-        xyInMap[1] = xyInScreen[1] - xyOffset[1];
-        xyInTile[0] = xyInMap[0] / Values.MAP_TILE_WIDTH;
-        xyInTile[1] = xyInMap[1] / Values.MAP_TILE_HEIGHT;
+        //双击点在屏幕像素上的坐标
+        xyInScrPx[0] = (int) e.getX();
+        xyInScrPx[1] = (int) e.getY();
+
+        //双击点在地图像素上的坐标
+        xyInMapPx[0] = xyInScrPx[0] - xyOffset[0];
+        xyInMapPx[1] = xyInScrPx[1] - xyOffset[1];
+
+        //双击点在地图格子上的坐标
+        xyInMapTile[0] = xyInMapPx[0] / Values.MAP_TILE_WIDTH;
+        xyInMapTile[1] = xyInMapPx[1] / Values.MAP_TILE_HEIGHT;
+
         switch (GAME_CASE) {
             case Values.CASE_NORMAL:
-                cursorXY[0] = xyInTile[0];
-                cursorXY[1] = xyInTile[1];
+                cursorXY[0] = xyInMapTile[0];
+                cursorXY[1] = xyInMapTile[1];
                 if (selectedActor != null)
                     selectedActor.lostCursor();
                 selectedActor = Actors.getActor(cursorXY);
-                if (selectedActor == null || selectedActor.isStandby()) {
-                    GAME_CASE = Values.CASE_SHOW_GAME_OPTIONS;
+                if (selectedActor == null || selectedActor.isStandby()) {//双击空白处，或此处角色已待机
+                    GAME_CASE = Values.CASE_SHOW_GAME_OPTIONS;//显示游戏菜单
                 }else{
                     selectedActor.getCursor();
                     if (selectedActor.getParty() == Values.PARTY_PLAYER){
-                        selectedActor.setNowAnim(Values.MAP_ANIM_DOWN);
+                        selectedActor.setNowAnim(Values.MAP_ANIM_DYNAMIC);
                     }
                     GAME_CASE = Values.CASE_BEFORE_MOVE;
                 }
-                isLeft = (xyInScreen[0] < Values.SCREEN_WIDTH / 2) ? true : false;
-                isDown = (xyInScreen[1] > Values.SCREEN_HEIGHT / 2) ? true : false;
+                isLeft = (xyInScrPx[0] < Values.SCREEN_WIDTH / 2) ? true : false;
+                isDown = (xyInScrPx[1] > Values.SCREEN_HEIGHT / 2) ? true : false;
                 break;
             case Values.CASE_SHOW_GAME_OPTIONS:
 //                gameOptions.HandleOption(xInScreen,yInScreen,isLeft);

@@ -141,7 +141,7 @@ public class ActorMoveHelper {
                 else {
                     newNode = new Node(newXY);
                     newNode.setParent(nowNode);
-                    newNode.setMoveCost(newNode.getMoveCost() + nowNode.getMoveCost());
+                    newNode.setMoveCost(newNode.getMoveCost() + nowNode.getMoveCost());//从起点移动到新节点的移动力消耗
                     if (newNode.getMoveCost() <= srcActor.getMov()) {//如果该格子在距离上可达
                         if ((dstActor = Actors.getActor(newXY))!=null) {//则判断该格子上有没有角色存在
                             switch (srcActor.getParty()){//如果有，则判断两者的阵营关系，友好阵营可以通过，敌对阵营不能通过
