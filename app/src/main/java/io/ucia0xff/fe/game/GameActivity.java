@@ -14,6 +14,7 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
+        //获得屏幕宽高
         Values.SCREEN_WIDTH = dm.widthPixels;
         Values.SCREEN_HEIGHT = dm.heightPixels;
         Values.CONTEXT = this;
