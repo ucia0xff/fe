@@ -8,6 +8,7 @@ import android.util.Xml;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.InputStream;
+import java.util.Iterator;
 
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.anim.ActorAnims;
@@ -18,8 +19,9 @@ import io.ucia0xff.fe.career.Careers;
 public class Actor {
     //配置信息
     private int party;//阵营
-    private int[] xyTile;//角色在地图数组中的坐标
-    private int[] xyPos;//角色动画左上角在屏幕的像素坐标
+    private int[] xyInMapTile;//角色在地图数组中的坐标
+    private int[] xyInMapPx;//角色动画左上角在地图的像素坐标
+    private int[] xyInScrPx;//角色动画左上角在屏幕的像素坐标
 
     //角色信息
     private String actorKey;//角色标识
@@ -86,8 +88,10 @@ public class Actor {
             InputStream in = Values.CONTEXT.getAssets().open("actor_config/" + actorName + ".xml");
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(in, "UTF-8");
+
             //START_TAG, END_TAG, TEXT等等的节点
             int eventType = parser.getEventType();
+
             //当还没有解析到结束文档的节点，一直循环
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
@@ -95,12 +99,13 @@ public class Actor {
                         party = Integer.parseInt(parser.nextText());
                     } else if ("xy".equals(parser.getName())) {
                         String[] xyText = parser.nextText().split(",");
-                        xyTile = new int[2];
-                        xyPos = new int[2];
-                        xyTile[0] = Integer.parseInt(xyText[0]);
-                        xyTile[1] = Integer.parseInt(xyText[1]);
-                        xyPos[0] = xyTile[0] * Values.MAP_TILE_WIDTH;
-                        xyPos[1] = xyTile[1] * Values.MAP_TILE_HEIGHT;
+                        xyInMapTile = new int[2];
+                        xyInMapPx = new int[2];
+                        xyInScrPx = new int[2];
+                        xyInMapTile[0] = Integer.parseInt(xyText[0]);
+                        xyInMapTile[1] = Integer.parseInt(xyText[1]);
+                        xyInMapPx[0] = xyInMapTile[0] * Values.MAP_TILE_WIDTH;
+                        xyInMapPx[1] = xyInMapTile[1] * Values.MAP_TILE_HEIGHT;
                     } else if ("actor-key".equals(parser.getName())) {
                         String key = parser.nextText().trim();
                         actorKey = (key.length() > 0)?key:"";//角色标识
@@ -117,109 +122,109 @@ public class Actor {
                         info = parser.nextText();
                     } else if ("face".equals(parser.getName())) {
                         String fileName = parser.nextText();
-                        face = (fileName.trim().length() > 0) ? Anim.readBitMap("faces/" + fileName) : Careers.careers.get(careerKey).getFace();
+                        face = (fileName.trim().length() > 0) ? Anim.readBitMap("faces/" + fileName) : Careers.getCareer(careerKey).getFace();
                     } else if ("adj-lv".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        LV = Careers.careers.get(careerKey).getInitLV();
+                        LV = Careers.getCareer(careerKey).getInitLV();
                         if (adjust.length() > 0) LV += Integer.parseInt(adjust);
                     } else if ("adj-mhp".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        MHP = Careers.careers.get(careerKey).getInitMHP();
+                        MHP = Careers.getCareer(careerKey).getInitMHP();
                         if (adjust.length() > 0) MHP += Integer.parseInt(adjust);
                         HP = MHP;
                     } else if ("adj-str".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        str = Careers.careers.get(careerKey).getInitStr();
+                        str = Careers.getCareer(careerKey).getInitStr();
                         if (adjust.length() > 0) str += Integer.parseInt(adjust);
                     } else if ("adj-mag".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        mag = Careers.careers.get(careerKey).getInitMag();
+                        mag = Careers.getCareer(careerKey).getInitMag();
                         if (adjust.length() > 0) mag += Integer.parseInt(adjust);
                     } else if ("adj-skl".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        skl = Careers.careers.get(careerKey).getInitSkl();
+                        skl = Careers.getCareer(careerKey).getInitSkl();
                         if (adjust.length() > 0) skl += Integer.parseInt(adjust);
                     } else if ("adj-spd".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        spd = Careers.careers.get(careerKey).getInitSpd();
+                        spd = Careers.getCareer(careerKey).getInitSpd();
                         if (adjust.length() > 0) spd += Integer.parseInt(adjust);
                     } else if ("adj-luc".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        luc = Careers.careers.get(careerKey).getInitLuc();
+                        luc = Careers.getCareer(careerKey).getInitLuc();
                         if (adjust.length() > 0) luc += Integer.parseInt(adjust);
                     } else if ("adj-def".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        def = Careers.careers.get(careerKey).getInitDef();
+                        def = Careers.getCareer(careerKey).getInitDef();
                         if (adjust.length() > 0) def += Integer.parseInt(adjust);
                     } else if ("adj-res".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        res = Careers.careers.get(careerKey).getInitRes();
+                        res = Careers.getCareer(careerKey).getInitRes();
                         if (adjust.length() > 0) res += Integer.parseInt(adjust);
                     } else if ("adj-mov".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        mov = Careers.careers.get(careerKey).getInitMov();
+                        mov = Careers.getCareer(careerKey).getInitMov();
                         if (adjust.length() > 0) mov += Integer.parseInt(adjust);
                     } else if ("adj-con".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        con = Careers.careers.get(careerKey).getInitCon();
+                        con = Careers.getCareer(careerKey).getInitCon();
                         if (adjust.length() > 0) con += Integer.parseInt(adjust);
                     } else if ("adj-mnt".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        mnt = Careers.careers.get(careerKey).getInitMnt();
+                        mnt = Careers.getCareer(careerKey).getInitMnt();
                         if (adjust.length() > 0) mnt = Integer.parseInt(adjust);
-                        aid = (mnt == 0)? con - 1 : Careers.careers.get(careerKey).getMaxCon() - con;
+                        aid = (mnt == 0)? con - 1 : Careers.getCareer(careerKey).getMaxCon() - con;
                     } else if ("adj-aff".equals(parser.getName())) {
                         String adjust = parser.nextText();
-                        aff = Careers.careers.get(careerKey).getInitAff();
+                        aff = Careers.getCareer(careerKey).getInitAff();
                         if (adjust.length() > 0) aff = Integer.parseInt(adjust);
                     } else if ("grow-mhp".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growMHP = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.careers.get(careerKey).getGrowMHP();
+                        growMHP = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowMHP();
                     } else if ("grow-str".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growStr = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.careers.get(careerKey).getGrowStr();
+                        growStr = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowStr();
                     } else if ("grow-mag".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growMag = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.careers.get(careerKey).getGrowMag();
+                        growMag = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowMag();
                     } else if ("grow-skl".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growSkl = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.careers.get(careerKey).getGrowSkl();
+                        growSkl = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowSkl();
                     } else if ("grow-spd".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growSpd = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.careers.get(careerKey).getGrowSpd();
+                        growSpd = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowSpd();
                     } else if ("grow-luc".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growLuc = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.careers.get(careerKey).getGrowLuc();
+                        growLuc = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowLuc();
                     } else if ("grow-def".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growDef = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.careers.get(careerKey).getGrowDef();
+                        growDef = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowDef();
                     } else if ("grow-res".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growRes = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.careers.get(careerKey).getGrowRes();
+                        growRes = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowRes();
                     } else if ("exp-swd".equals(parser.getName())) {
                         String exp = parser.nextText();
-                        expSwd = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.careers.get(careerKey).getInitSwd();
+                        expSwd = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.getCareer(careerKey).getInitSwd();
                     } else if ("exp-lan".equals(parser.getName())) {
                         String exp = parser.nextText();
-                        expLan = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.careers.get(careerKey).getInitLan();
+                        expLan = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.getCareer(careerKey).getInitLan();
                     } else if ("exp-axe".equals(parser.getName())) {
                         String exp = parser.nextText();
-                        expAxe = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.careers.get(careerKey).getInitAxe();
+                        expAxe = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.getCareer(careerKey).getInitAxe();
                     } else if ("exp-bow".equals(parser.getName())) {
                         String exp = parser.nextText();
-                        expBow = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.careers.get(careerKey).getInitBow();
+                        expBow = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.getCareer(careerKey).getInitBow();
                     } else if ("exp-stf".equals(parser.getName())) {
                         String exp = parser.nextText();
-                        expStf = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.careers.get(careerKey).getInitStf();
+                        expStf = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.getCareer(careerKey).getInitStf();
                     } else if ("exp-anm".equals(parser.getName())) {
                         String exp = parser.nextText();
-                        expAnm = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.careers.get(careerKey).getInitAnm();
+                        expAnm = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.getCareer(careerKey).getInitAnm();
                     } else if ("exp-lgt".equals(parser.getName())) {
                         String exp = parser.nextText();
-                        expLgt = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.careers.get(careerKey).getInitLgt();
+                        expLgt = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.getCareer(careerKey).getInitLgt();
                     } else if ("exp-drk".equals(parser.getName())) {
                         String exp = parser.nextText();
-                        expDrk = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.careers.get(careerKey).getInitDrk();
+                        expDrk = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.getCareer(careerKey).getInitDrk();
                     }
                 }
                 //获取到下一个节点，在触发解析动作
@@ -234,33 +239,75 @@ public class Actor {
     public void drawAnim(Canvas canvas, Paint paint, int[] xyOffset) {
         if (isStandby())
             setNowAnim(Values.MAP_ANIM_STANDBY);
-        ActorAnims.actorAnims.get(nowAnim).drawAnim(canvas, paint, xyTile, xyOffset);
+        xyInScrPx[0] = xyInMapPx[0] + xyOffset[0];
+        xyInScrPx[1] = xyInMapPx[1] + xyOffset[1];
+        ActorAnims.actorAnims.get(nowAnim).drawAnim(canvas, paint, xyInScrPx);
     }
 
     //角色被取消选中
     public void lostCursor() {
-        if (isStandby()) {
-            setNowAnim(Values.MAP_ANIM_STANDBY);
-        } else {
-            setNowAnim(Values.MAP_ANIM_STATIC);
+        if (isStandby()) {                                //已待机
+            setNowAnim(Values.MAP_ANIM_STANDBY);        //待机图标
+        } else {                                         //未待机
+            setNowAnim(Values.MAP_ANIM_STATIC);         //静态图标
         }
     }
 
     //角色被选中
     public void getCursor() {
-        if (isStandby()) {//已待机
-            setNowAnim(Values.MAP_ANIM_STANDBY);//待机图标
-        } else if (party != Values.PARTY_PLAYER) {//未待机、非我方角色
-            setNowAnim(Values.MAP_ANIM_STATIC);//静态图标
-        } else {//未待机、我方角色
-            setNowAnim(Values.MAP_ANIM_DYNAMIC);//动态图标
+        if (isStandby()) {                                //已待机
+            setNowAnim(Values.MAP_ANIM_STANDBY);        //待机图标
+        } else if (party == Values.PARTY_PLAYER) {     //未待机、我方角色
+            setNowAnim(Values.MAP_ANIM_DYNAMIC);        //动态图标
+        } else {                                         //未待机、非我方角色
+            setNowAnim(Values.MAP_ANIM_STATIC);         //静态图标
         }
+    }
+
+    //角色按照移动路径移动
+    public boolean move(ActorMoveHelper.NodeList movePath) {
+        ActorMoveHelper.Node nextNode;
+        int[] nextXy;
+        for (int i=0;i<movePath.size();i++) {
+            nextNode = movePath.get(i);
+            if (!(nextNode.equals(xyInMapTile)))//找到移动路径中的当前位置
+                continue;
+            if (i<movePath.size()-1) {
+                nextNode = movePath.get(i+1);//找到当前位置的下一个位置
+                nextXy = nextNode.getXy();
+                if (nextXy[0] < xyInMapTile[0]) {//左移
+                    xyInMapPx[0] -= 10;
+                    setNowAnim(Values.MAP_ANIM_LEFT);
+                    if (xyInMapPx[0] == (xyInMapTile[0]-1) * Values.MAP_TILE_WIDTH)
+                        xyInMapTile[0] -= 1;
+                } else if (nextXy[0] > xyInMapTile[0]){//右移
+                    xyInMapPx[0] += 10;
+                    setNowAnim(Values.MAP_ANIM_RIGHT);
+                    if (xyInMapPx[0] == (xyInMapTile[0]+1) * Values.MAP_TILE_WIDTH)
+                        xyInMapTile[0] += 1;
+                } else if (nextXy[1] < xyInMapTile[1]){//上移
+                    xyInMapPx[1] -= 10;
+                    setNowAnim(Values.MAP_ANIM_UP);
+                    if (xyInMapPx[1] == (xyInMapTile[1]-1) * Values.MAP_TILE_HEIGHT)
+                        xyInMapTile[1] -= 1;
+                } else if (nextXy[1] > xyInMapTile[1]){//下移
+                    xyInMapPx[1] += 10;
+                    setNowAnim(Values.MAP_ANIM_DOWN);
+                    if (xyInMapPx[1] == (xyInMapTile[1]+1) * Values.MAP_TILE_HEIGHT)
+                        xyInMapTile[1] += 1;
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean equals(Actor actor) {
         if (actor == null)
             return false;
-        return xyTile[0] == actor.getXyTile()[0] && xyTile[1] == actor.getXyTile()[1] && actorKey.equals(actor.getActorKey());
+        return xyInMapTile[0] == actor.getXyInMapTile()[0] && xyInMapTile[1] == actor.getXyInMapTile()[1] && actorKey.equals(actor.getActorKey());
     }
 
     public int getParty() {
@@ -271,20 +318,20 @@ public class Actor {
         this.party = party;
     }
 
-    public int[] getXyTile() {
-        return xyTile;
+    public int[] getXyInMapTile() {
+        return xyInMapTile;
     }
 
-    public void setXyTile(int[] xyTile) {
-        this.xyTile = xyTile;
+    public void setXyInMapTile(int[] xyInMapTile) {
+        this.xyInMapTile = xyInMapTile;
     }
 
-    public int[] getXyPos() {
-        return xyPos;
+    public int[] getXyInScrPx() {
+        return xyInScrPx;
     }
 
-    public void setXyPos(int[] xyPos) {
-        this.xyPos = xyPos;
+    public void setXyInScrPx(int[] xyInScrPx) {
+        this.xyInScrPx = xyInScrPx;
     }
 
     public String getActorKey() {

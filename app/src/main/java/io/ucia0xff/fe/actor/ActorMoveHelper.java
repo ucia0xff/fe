@@ -3,9 +3,7 @@ package io.ucia0xff.fe.actor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -23,10 +21,12 @@ public class ActorMoveHelper {
     private Node startNode;
     private Node nowNode;
     private Node newNode;
-    private NodeList canMove;
-    private NodeList movePath;
-    private Bitmap areaMov;
-    private Bitmap area;
+    private NodeList moveRange;//可移动范围
+    private NodeList movePath;//移动路径
+    private Bitmap block;
+    private Bitmap blockMove;//可移动范围的色块
+    private Bitmap blockStaff;//可攻击范围的色块
+    private Bitmap blockAttack;//杖使用范围的色块
     private Rect src;
     private Rect dst;
     private static int[][] DIRECTION = {//移动方向
@@ -38,10 +38,12 @@ public class ActorMoveHelper {
 
     public ActorMoveHelper(Map map){
         this.map = map;
-        canMove = new NodeList();
+        moveRange = new NodeList();
         movePath = new NodeList();
-        areaMov = Anim.readBitMap(R.drawable.area_mov);
-        src = new Rect(0, 0, areaMov.getWidth(), areaMov.getHeight());
+        blockMove = Anim.readBitMap(R.drawable.block_move);
+        blockStaff = Anim.readBitMap(R.drawable.block_staff);
+        blockAttack = Anim.readBitMap(R.drawable.block_attack);
+        src = new Rect(0, 0, blockMove.getWidth(), blockMove.getHeight());
         dst = new Rect(0, 0, Values.MAP_TILE_WIDTH, Values.MAP_TILE_HEIGHT);
     }
     public ActorMoveHelper(Actor srcActor, Map map){
@@ -49,13 +51,14 @@ public class ActorMoveHelper {
         this.setSrcActor(srcActor);
     }
 
-    //显示移动区域
-    public void drawCanMove(Canvas canvas, Paint paint, int[] xyOffset) {
+    //绘制移动范围
+    public void drawMoveRange(Canvas canvas, Paint paint, int[] xyOffset) {
         if (canvas==null) return;
         int[] xyTile;
-        for (int i = 0; i < canMove.size(); i++) {
-            xyTile = canMove.get(i).getXyTile();
-            dst.offsetTo(xyTile[0] * Values.MAP_TILE_WIDTH + xyOffset[0], xyTile[1] * Values.MAP_TILE_HEIGHT + xyOffset[1]);
+        for (int i = 0; i < moveRange.size(); i++) {
+            xyTile = moveRange.get(i).getXy();
+            dst.offsetTo(xyTile[0] * Values.MAP_TILE_WIDTH + xyOffset[0],
+                    xyTile[1] * Values.MAP_TILE_HEIGHT + xyOffset[1]);
             drawBlock(canvas, paint, 0);
         }
     }
@@ -64,10 +67,16 @@ public class ActorMoveHelper {
     private void drawBlock(Canvas canvas, Paint paint, int type) {
         switch (type){
             case 0:
-                area = areaMov;
+                block = blockMove;
+                break;
+            case 1:
+                block = blockAttack;
+                break;
+            case 2:
+                block = blockStaff;
                 break;
         }
-        canvas.drawBitmap(area, src, dst, paint);
+        canvas.drawBitmap(block, src, dst, paint);
     }
 
     public Map getMap() {
@@ -84,9 +93,9 @@ public class ActorMoveHelper {
 
     public void setSrcActor(Actor srcActor) {
         this.srcActor = srcActor;
-        startNode = new Node(srcActor.getXyTile());
+        startNode = new Node(srcActor.getXyInMapTile());
         startNode.setMoveCost(0);
-        this.setCanMove();
+        this.setMoveRange();
     }
 
     public Actor getDstActor() {
@@ -121,42 +130,45 @@ public class ActorMoveHelper {
         this.newNode = newNode;
     }
 
-    public NodeList getCanMove() {
-        return canMove;
+    public NodeList getMoveRange() {
+        return moveRange;
     }
 
-    public void setCanMove() {
-        canMove.clear();
-        canMove.add(startNode);
+    //设置可移动范围
+    public void setMoveRange() {
+        moveRange.clear();
+        moveRange.add(startNode);
         int[] nowXY;
         int[] newXY = new int[2];
-        for (int i = 0; i < canMove.size(); i++) {
-            nowNode = canMove.get(i);
-            nowXY = nowNode.getXyTile();
-            for (int j = 0; j < DIRECTION.length; j++) {
+        for (int i = 0; i < moveRange.size(); i++) {//遍历可移动范围里的每个节点
+            nowNode = moveRange.get(i);
+            nowXY = nowNode.getXy();
+            for (int j = 0; j < DIRECTION.length; j++) {//遍历该节点的4个方向得到新节点的坐标
                 newXY[0] = nowXY[0] + DIRECTION[j][0];
                 newXY[1] = nowXY[1] + DIRECTION[j][1];
-                if (newXY[0] < 0 || newXY[1] < 0 || newXY[0] >= map.getMapWidthTileCount() || newXY[1] >= map.getMapHeightTileCount())//检查是否超出地图边界
+                if (newXY[0] < 0 || newXY[1] < 0 ||
+                        newXY[0] >= map.getMapWidthTileCount() ||
+                        newXY[1] >= map.getMapHeightTileCount())//新坐标超出地图边界则不处理
                     continue;
                 else {
                     newNode = new Node(newXY);
                     newNode.setParent(nowNode);
                     newNode.setMoveCost(newNode.getMoveCost() + nowNode.getMoveCost());//从起点移动到新节点的移动力消耗
-                    if (newNode.getMoveCost() <= srcActor.getMov()) {//如果该格子在距离上可达
-                        if ((dstActor = Actors.getActor(newXY))!=null) {//则判断该格子上有没有角色存在
-                            switch (srcActor.getParty()){//如果有，则判断两者的阵营关系，友好阵营可以通过，敌对阵营不能通过
+                    if (newNode.getMoveCost() <= srcActor.getMov()) {//如果该节点在距离上可达
+                        if ((dstActor = Actors.getActor(newXY))!=null) {//则判断该节点上有没有角色存在
+                            switch (srcActor.getParty()){//如果有，则判断两者的阵营关系
                                 case Values.PARTY_ALLY:
                                 case Values.PARTY_PLAYER:
-                                    if (dstActor.getParty()==Values.PARTY_ENEMY)
+                                    if (dstActor.getParty()==Values.PARTY_ENEMY)//互为敌对阵营,不能通过该节点
                                         continue;
                                     break;
                                 case Values.PARTY_ENEMY:
-                                    if (dstActor.getParty()!=Values.PARTY_ENEMY)
+                                    if (dstActor.getParty()!=Values.PARTY_ENEMY)//互为敌对阵营,不能通过该节点
                                         continue;
                                     break;
                             }
                         }
-                        canMove.add(newNode);
+                        moveRange.add(newNode);//该节点上没有角色，或者有角色但是友好阵营，则可通过该节点，将该节点加入列表
                     }
                 }
             }
@@ -167,19 +179,25 @@ public class ActorMoveHelper {
         return movePath;
     }
 
+    public boolean canMoveTo(int[] xy){
+        return moveRange.indexOf(xy)!=-1;
+    }
+
+    //设置移动路径
     public void setMovePath(int[] xyTile) {
         movePath.clear();
-        int index = canMove.indexOf(new Node(xyTile));
-        nowNode = canMove.get(index);
+        int index = moveRange.indexOf(new Node(xyTile));
+        nowNode = moveRange.get(index);
         while (nowNode != startNode) {
             movePath.add(0, nowNode);
             nowNode = nowNode.getParent();
         }
+        movePath.add(0, startNode);
     }
 
     //内部类——节点
     public class Node implements Comparable<Node> {
-        private int[] xyTile;//当前格子的位置
+        private int[] xy;//当前格子的位置
         private int moveCost;//当前格子的移动力消耗
 
         private int f;//g和h的和
@@ -187,16 +205,20 @@ public class ActorMoveHelper {
         private int h;//从当前格子到终点格子的预估移动力
         private Node parent;//路径上的父格子
 
-        public Node(int[] xyTile) {
-            this.xyTile = new int[2];
-            this.xyTile[0] = xyTile[0];
-            this.xyTile[1] = xyTile[1];
-            this.moveCost = Terrain.MOVE_COST[Careers.careers.get(srcActor.getCareerKey()).getMoveType()][map.getTerrain(this.xyTile)];
+        public Node(int[] xy) {
+            this.xy = new int[2];
+            this.xy[0] = xy[0];
+            this.xy[1] = xy[1];
+            this.moveCost = Terrain.MOVE_COST[Careers.getCareer(srcActor.getCareerKey()).getMoveType()][map.getTerrain(this.xy)];
             this.parent = null;
         }
 
         public boolean equals(Node node) {
-            return (this.xyTile[0] == node.getXyTile()[0]) && (this.xyTile[1] == node.getXyTile()[1]);
+            return (this.xy[0] == node.getXy()[0]) && (this.xy[1] == node.getXy()[1]);
+        }
+
+        public boolean equals(int[] xy) {
+            return (this.xy[0] == xy[0]) && (this.xy[1] == xy[1]);
         }
 
         @Override
@@ -208,12 +230,12 @@ public class ActorMoveHelper {
             return result;
         }
 
-        public int[] getXyTile() {
-            return xyTile;
+        public int[] getXy() {
+            return xy;
         }
 
-        public void setXyTile(int[] xyTile) {
-            this.xyTile = xyTile;
+        public void setXy(int[] xy) {
+            this.xy = xy;
         }
 
         public int getMoveCost() {
@@ -274,6 +296,16 @@ public class ActorMoveHelper {
                 } else super.add(node);
             }
             return true;
+        }
+
+        public int indexOf(int[] xyTile){
+            for (int i = size() - 1; i >= 0; i--) {
+                Node tmp = get(i);
+                if (tmp.xy[0]==xyTile[0] && tmp.xy[1]==xyTile[1]) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         public int indexOf(Node node) {

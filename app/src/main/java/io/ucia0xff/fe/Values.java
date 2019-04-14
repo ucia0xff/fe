@@ -41,7 +41,7 @@ public class Values {
     public static final int PARTY_ALLY = 2;//友军
     public static final int PARTY_UNKNOWN = 3;//中立
 
-    //回合
+    //回合阶段
     public static final int PHASE_PLAYER = 0;
     public static final int PHASE_ENEMY = 1;
     public static final int PHASE_ALLY = 2;

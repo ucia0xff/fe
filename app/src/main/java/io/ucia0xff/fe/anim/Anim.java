@@ -84,10 +84,10 @@ public abstract class Anim {
     }
 
 
-    //在指定像素坐标绘制动画
-    public abstract void drawAnim(Canvas canvas, Paint paint, int[] xyPos);
-    //在指定格子坐标绘制动画
-    public abstract void drawAnim(Canvas canvas, Paint paint, int[] xyTile, int[] xyOffset);
+    //在屏幕像素坐标绘制动画
+    public abstract void drawAnim(Canvas canvas, Paint paint, int[] xyInScrPx);
+    //在地图格子坐标绘制动画
+    public abstract void drawAnim(Canvas canvas, Paint paint, int[] xyInMapTile, int[] xyOffset);
     //在指定区域绘制动画
     public abstract void drawAnim(Canvas canvas, Paint paint, Rect dst);
     //在指定像素坐标绘制一帧
@@ -176,30 +176,30 @@ public abstract class Anim {
      * @param src 源图片
      * @return 左右翻转的图片
      */
-    public static Bitmap[] getMirrorBitmap(Bitmap[] src) {
+    public static Bitmap[] toMirrorBitmap(Bitmap[] src) {
         Bitmap[] mirrors = new Bitmap[src.length];
         for (int i = 0; i < src.length; i++)
-            mirrors[i] = getMirrorBitmap(src[i]);
+            mirrors[i] = toMirrorBitmap(src[i]);
         return mirrors;
     }
-    public static Bitmap getMirrorBitmap(Bitmap src){
+    public static Bitmap toMirrorBitmap(Bitmap src){
         Matrix m = new Matrix();
         m.preScale(-1, 1);
         return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), m, false);
     }
 
     /**
-     * 工具方法：获得黑白图片
+     * 工具方法：转换为灰度图片
      * @param src 源图片
-     * @return 黑白图片
+     * @return 灰度图片
      */
-    public static Bitmap[] getBlackBitmap(Bitmap[] src) {
-        Bitmap[] blacks = new Bitmap[src.length];
+    public static Bitmap[] toGreyBitmap(Bitmap[] src) {
+        Bitmap[] grey = new Bitmap[src.length];
         for (int i=0;i<src.length;i++)
-            blacks[i] = getBlackBitmap(src[i]);
-        return blacks;
+            grey[i] = toGreyBitmap(src[i]);
+        return grey;
     }
-    public static Bitmap getBlackBitmap(Bitmap src) {
+    public static Bitmap toGreyBitmap(Bitmap src) {
         int width = src.getWidth(); // 获取位图的宽
         int height = src.getHeight(); // 获取位图的高
         int[] pixels = new int[width * height]; // 通过位图的大小创建像素点数组
@@ -214,9 +214,9 @@ public abstract class Anim {
                 int green = ((argb & 0x0000FF00) >> 8);
                 int blue = (argb & 0x000000FF);
                 //转化成灰度像素
-                int black = (int) (red * 0.3 + green * 0.59 + blue * 0.11);
-                black = alpha | (black << 16) | (black << 8) | black;
-                pixels[width * i + j] = black;
+                int grey = (int) (red * 0.3 + green * 0.59 + blue * 0.11);
+                grey = alpha | (grey << 16) | (grey << 8) | grey;
+                pixels[width * i + j] = grey;
             }
         }
         //新建图片

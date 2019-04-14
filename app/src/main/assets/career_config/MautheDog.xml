@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <career>
     <!--基本信息-->
-    <key>SisterNatasha</key>
-    <name>修女</name>
-    <info>使用圣杖救助我方的女性 装备『杖』</info>
-    <face></face><!--头像-->
+    <key>MautheDog</key>
+    <name>魔刹犬</name>
+    <info>极度嗜血的凶暴魔兽，速度飞快并使用利牙袭击人类</info>
+    <face>mauthedog.png</face><!--头像-->
 
     <!--移动类型-->
-    <move-type>9</move-type><!--魔法系-->
+    <move-type>4</move-type>
 
     <!--初始能力-->
     <init-lv>1</init-lv>
     <init-mhp>16</init-mhp>
-    <init-str>0</init-str>
-    <init-mag>1</init-mag>
-    <init-skl>2</init-skl>
-    <init-spd>2</init-spd>
+    <init-str>4</init-str>
+    <init-mag>0</init-mag>
+    <init-skl>10</init-skl>
+    <init-spd>10</init-spd>
     <init-luc>0</init-luc>
-    <init-def>0</init-def>
-    <init-res>6</init-res>
-    <init-mov>5</init-mov>
-    <init-con>4</init-con>
+    <init-def>2</init-def>
+    <init-res>0</init-res>
+    <init-mov>7</init-mov>
+    <init-con>6</init-con>
     <init-mnt>0</init-mnt><!--坐骑，0是没有-->
     <init-aff>0</init-aff><!--属性，0是没有-->
 
@@ -38,21 +38,21 @@
     <max-con>20</max-con>
 
     <!--职业通用成长率-->
-    <grow-mhp>50</grow-mhp>
-    <grow-str>10</grow-str>
-    <grow-mag>30</grow-mag>
-    <grow-skl>35</grow-skl>
-    <grow-spd>32</grow-spd>
-    <grow-luc>45</grow-luc>
-    <grow-def>8</grow-def>
-    <grow-res>50</grow-res>
+    <grow-mhp>70</grow-mhp><!--hp成长-->
+    <grow-str>35</grow-str><!--力量成长-->
+    <grow-mag>10</grow-mag><!--魔力成长-->
+    <grow-skl>45</grow-skl><!--技术成长-->
+    <grow-spd>45</grow-spd><!--速度成长-->
+    <grow-luc>30</grow-luc><!--幸运成长-->
+    <grow-def>15</grow-def><!--守备成长-->
+    <grow-res>20</grow-res><!--魔防成长-->
 
     <!--初始武器熟练度-->
     <init-swd>0</init-swd>
     <init-lan>0</init-lan>
     <init-axe>0</init-axe>
     <init-bow>0</init-bow>
-    <init-stf>31</init-stf>
+    <init-stf>0</init-stf>
     <init-anm>0</init-anm>
     <init-lgt>0</init-lgt>
     <init-drk>0</init-drk>
@@ -62,7 +62,7 @@
     <max-lan>0</max-lan>
     <max-axe>0</max-axe>
     <max-bow>0</max-bow>
-    <max-stf>181</max-stf>
+    <max-stf>0</max-stf>
     <max-anm>0</max-anm>
     <max-lgt>0</max-lgt>
     <max-drk>0</max-drk>

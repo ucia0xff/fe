@@ -6,7 +6,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -114,7 +113,7 @@ public class Map {
      * @param paint
      * @param xyOffset 游戏地图左上角相对屏幕左上角(0,0)的偏移量，左为负右为正，上为负下为正
      */
-    public static void DrawMap(Canvas canvas, Paint paint, int[] xyOffset) {
+    public void drawMap(Canvas canvas, Paint paint, int[] xyOffset) {
         for (int i = 0; i < mapHeightTileCount; i++) {
             for (int j = 0; j < mapWidthTileCount; j++) {
                 if ((j * Values.MAP_TILE_WIDTH + xyOffset[0] + Values.MAP_TILE_WIDTH < 0)||//左屏幕外
@@ -124,7 +123,7 @@ public class Map {
                     continue;//不画屏幕外的地图块
                 //算出要绘制的地图块左上角在屏幕上的像素坐标
                 int [] xyPos = new int[]{j * Values.MAP_TILE_WIDTH + xyOffset[0], i * Values.MAP_TILE_HEIGHT + xyOffset[1]};
-                DrawMapTile(tileIndex[i][j], canvas, paint, res, xyPos);
+                drawMapTile(tileIndex[i][j], canvas, paint, res, xyPos);
             }
         }
     }
@@ -137,7 +136,7 @@ public class Map {
      * @param bitmap 地图块集
      * @param xyPos 绘制在屏幕的像素坐标
      */
-    public static void DrawMapTile(int id, Canvas canvas, Paint paint, Bitmap bitmap, int[] xyPos) {
+    public void drawMapTile(int id, Canvas canvas, Paint paint, Bitmap bitmap, int[] xyPos) {
         if (canvas==null) return;
         //算出要绘制的地图块左上角在地图资源中的像素坐标
         int bitmapX = id % resWidthTileCount * Values.RES_TILE_WIDTH;//需要的地图块在地图资源中的X坐标
