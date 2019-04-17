@@ -6,8 +6,11 @@
     <info>使用圣杖救助我方的女性 装备『杖』</info>
     <face></face><!--头像-->
 
-    <!--移动类型-->
-    <move-type>9</move-type><!--魔法系-->
+    <!--兵种类型-->
+    <type>9</type><!--魔法系-->
+
+    <!--移动速度-->
+    <move-spd>0</move-spd>
 
     <!--初始能力-->
     <init-lv>1</init-lv>
@@ -24,17 +27,17 @@
     <init-mnt>0</init-mnt><!--坐骑，0是没有-->
     <init-aff>0</init-aff><!--属性，0是没有-->
 
-    <!--最大能力-->
+    <!--能力上限-->
     <max-lv>20</max-lv>
     <max-mhp>60</max-mhp>
     <max-str>20</max-str>
     <max-mag>20</max-mag>
     <max-skl>20</max-skl>
     <max-spd>20</max-spd>
-    <max-luc>30</max-luc>
+    <max-luc>20</max-luc>
     <max-def>20</max-def>
     <max-res>20</max-res>
-    <max-mov>15</max-mov>
+    <max-mov>20</max-mov>
     <max-con>20</max-con>
 
     <!--职业通用成长率-->

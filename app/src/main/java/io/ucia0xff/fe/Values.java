@@ -37,9 +37,9 @@ public class Values {
     public static final String[] PARTIES = {"Player", "Ally", "Enemy", "Unknown"};
     public static final int PARTY_COUNT = 4;
     public static final int PARTY_PLAYER = 0;//我军
-    public static final int PARTY_ENEMY = 1;//敌军
-    public static final int PARTY_ALLY = 2;//友军
-    public static final int PARTY_UNKNOWN = 3;//中立
+    public static final int PARTY_ALLY = 1;//友军
+    public static final int PARTY_ENEMY = 2;//敌军
+    public static final int PARTY_UNKNOWN = 3;//未知
 
     //回合阶段
     public static final int PHASE_PLAYER = 0;
@@ -120,4 +120,11 @@ public class Values {
 
     //人物属性
     public static final String[] AFFIN = {"","炎","雷","风","冰","暗","光","理"};
+
+    //人物移动速度
+    public static final int[] MOVE_SPEED = {5, 10, 20};
+
+    //人物头像宽高
+    public static final int RES_FACE_WIDTH = 80;
+    public static final int RES_FACE_HEIGHT = 80;
 }

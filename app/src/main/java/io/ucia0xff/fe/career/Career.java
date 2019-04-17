@@ -17,8 +17,8 @@ public class Career {
     private String info;//职业说明
     private Bitmap face;//职业通用头像
 
-    //移动类型
-    private int moveType = 0;//移动类型
+    private int type = 0;//兵种类型
+    private int moveSpd = 0;//移动速度
 
     //初始能力
     private int initLV = 0;//等级
@@ -101,8 +101,10 @@ public class Career {
                         } else {
                             face = Anim.readBitMap("faces/Unknown.png");
                         }
-                    }else if ("move-type".equals(parser.getName())){
-                        moveType = Integer.parseInt(parser.nextText());
+                    }else if ("type".equals(parser.getName())){
+                        type = Integer.parseInt(parser.nextText());
+                    }else if ("move-spd".equals(parser.getName())){
+                        moveSpd = Values.MOVE_SPEED[Integer.parseInt(parser.nextText())];
                     }else if ("init-lv".equals(parser.getName())){
                         initLV = Integer.parseInt(parser.nextText());
                     }else if ("init-mhp".equals(parser.getName())){
@@ -226,8 +228,12 @@ public class Career {
         return face;
     }
 
-    public int getMoveType() {
-        return moveType;
+    public int getType() {
+        return type;
+    }
+
+    public int getMoveSpd() {
+        return moveSpd;
     }
 
     public int getInitLV() {

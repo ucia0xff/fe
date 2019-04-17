@@ -40,15 +40,15 @@ public class Paints {
 
         //角色信息-角色名
         paint = new Paint();
-        paint.setTextSize(80);
+        paint.setTextSize(60);
         paint.setColor(Color.WHITE);
-        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextAlign(Paint.Align.CENTER);//文字居中对齐
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
         paints.put("actor_name", paint);
 
         //角色信息-职业名
         paint = new Paint();
-        paint.setTextSize(70);
+        paint.setTextSize(50);
         paint.setColor(Color.WHITE);
         paint.setTypeface(Typeface.SANS_SERIF);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -57,7 +57,7 @@ public class Paints {
 
         //角色信息-Lv/Exp/HP标题
         paint = new Paint();
-        paint.setTextSize(80);
+        paint.setTextSize(60);
         paint.setColor(Color.YELLOW);
         paint.setTypeface(Typeface.MONOSPACE);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -66,7 +66,7 @@ public class Paints {
 
         //角色信息-Lv/Exp/HP数值-正常
         paint = new Paint();
-        paint.setTextSize(80);
+        paint.setTextSize(60);
         paint.setColor(Color.rgb(192,248,248));
         paint.setTypeface(Typeface.MONOSPACE);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -75,7 +75,7 @@ public class Paints {
 
         //角色信息-Lv/Exp/HP数值-满值
         paint = new Paint();
-        paint.setTextSize(80);
+        paint.setTextSize(60);
         paint.setColor(Color.GREEN);
         paint.setTypeface(Typeface.MONOSPACE);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -84,7 +84,7 @@ public class Paints {
 
         //角色信息-Lv/Exp/HP数值-警告
         paint = new Paint();
-        paint.setTextSize(80);
+        paint.setTextSize(60);
         paint.setColor(Color.YELLOW);
         paint.setTypeface(Typeface.MONOSPACE);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -93,20 +93,20 @@ public class Paints {
 
         //角色信息-Lv/Exp/HP数值-危险
         paint = new Paint();
-        paint.setTextSize(80);
+        paint.setTextSize(60);
         paint.setColor(Color.RED);
         paint.setTypeface(Typeface.MONOSPACE);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
         paints.put("lv_exp_hp_num_red", paint);
 
-        //角色信息-各项数据标题
+        //角色信息-页面标题
         paint = new Paint();
-        paint.setTextSize(80);
-        paint.setColor(Color.YELLOW);
-        paint.setTextAlign(Paint.Align.LEFT);
+        paint.setTextSize(60);
+        paint.setColor(Color.rgb(192,248,248));
+        paint.setTextAlign(Paint.Align.CENTER);
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
-        paints.put("ability_name", paint);
+        paints.put("page_title", paint);
 
         //角色信息-页面指示
         paint = new Paint();
@@ -116,52 +116,47 @@ public class Paints {
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
         paints.put("page_indicator", paint);
 
-        //角色信息-各项数据条最大值
+
+        //角色信息-各项数据名称
+        paint = new Paint();
+        paint.setTextSize(60);
+        paint.setColor(Color.YELLOW);
+        paint.setTextAlign(Paint.Align.LEFT);
+        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
+        paints.put("ability_name", paint);
+
+        //角色信息-各项数据数值
+        paint = new Paint();
+        paint.setTextSize(50);
+        paint.setColor(Color.rgb(192,248,248));
+        paint.setTextAlign(Paint.Align.RIGHT);
+        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
+        paints.put("ability_value", paint);
+
+        //角色信息-各项数据条边框
         paint = new Paint();
         paint.setColor(Color.rgb(80, 72, 64));
         paint.setStrokeWidth(24);
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
-        paints.put("ability_border", paint);
+        paints.put("ability_bar_border", paint);
 
         //角色信息-各项数据条当前值
         paint = new Paint();
         paint.setColor(Color.YELLOW);
         paint.setStrokeWidth(12);
-        paints.put("ability_yellow", paint);
+        paints.put("ability_bar_yellow", paint);
 
         //角色信息-各项数据条剩余值
         paint = new Paint();
         paint.setColor(Color.rgb(128, 136, 152));
         paint.setStrokeWidth(12);
-        paints.put("ability_blank", paint);
+        paints.put("ability_bar_blank", paint);
 
-        //角色信息-各项数据当前值
-        paint = new Paint();
-        paint.setTextSize(70);
-        paint.setColor(Color.rgb(192,248,248));
-        paint.setTextAlign(Paint.Align.RIGHT);
-        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
-        paints.put("ability_data_blue", paint);
 
-        //角色信息-各项数据最大值
-        paint = new Paint();
-        paint.setTextSize(70);
-        paint.setColor(Color.GREEN);
-        paint.setTextAlign(Paint.Align.RIGHT);
-        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
-        paints.put("ability_data_green", paint);
 
-        //角色信息-各项数据文字
+        //角色信息-武器种类名称
         paint = new Paint();
-        paint.setTextSize(70);
-        paint.setColor(Color.rgb(192,248,248));
-        paint.setTextAlign(Paint.Align.LEFT);
-        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
-        paints.put("ability_text_blue", paint);
-
-        //角色信息-武器种类标题
-        paint = new Paint();
-        paint.setTextSize(70);
+        paint.setTextSize(60);
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.LEFT);
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
@@ -169,7 +164,7 @@ public class Paints {
 
         //角色信息-武器熟练度等级
         paint = new Paint();
-        paint.setTextSize(70);
+        paint.setTextSize(50);
         paint.setColor(Color.rgb(192,248,248));
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
@@ -177,7 +172,7 @@ public class Paints {
 
         //角色信息-武器熟练度最高级
         paint = new Paint();
-        paint.setTextSize(70);
+        paint.setTextSize(50);
         paint.setColor(Color.GREEN);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));

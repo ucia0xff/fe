@@ -27,7 +27,7 @@ public class ActorAnims {
             actorAnims.put("SisterNatashaPlayerStandby", actorAnim);
 
             //修女娜塔莎动态图标
-            bitmap = Anim.readBitMap("actor_anim/SisterNatashaPlayerMove.png");
+            bitmap = Anim.readBitMap("actor_anim/SisterNatashaPlayerDynamic.png");
             bitmaps = Anim.splitBitmap(bitmap, 13, 3, 32);
             actorAnim = new ActorAnim(bitmaps, true);
             actorAnim.setDurations(200);
@@ -73,7 +73,7 @@ public class ActorAnims {
             actorAnims.put("MautheDogPlayerStandby", actorAnim);
 
             //魔刹犬动态图标
-            bitmap = Anim.readBitMap("actor_anim/MautheDogPlayerMove.png");
+            bitmap = Anim.readBitMap("actor_anim/MautheDogPlayerDynamic.png");
             bitmaps = Anim.splitBitmap(bitmap, 13, 3, 32);
             actorAnim = new ActorAnim(bitmaps, true);
             actorAnim.setDurations(200);
@@ -102,6 +102,52 @@ public class ActorAnims {
             actorAnim = new ActorAnim(bitmaps, true);
             actorAnim.setDurations(100);
             actorAnims.put("MautheDogPlayerUp", actorAnim);
+        }
+
+        {//翼龙骑士
+            //翼龙骑士静态图标
+            bitmap = Anim.readBitMap("actor_anim/WyvernKnightEnemyStatic.png");
+            bitmaps = Anim.splitBitmap(bitmap, 1, 3, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(400);
+            actorAnims.put("WyvernKnightEnemyStatic", actorAnim);
+
+            //翼龙骑士待机图标
+            bitmaps = Anim.toGreyBitmap(bitmaps);//静态图标帧转换成灰度得到待机图标帧
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(400);
+            actorAnims.put("WyvernKnightEnemyStandby", actorAnim);
+
+            //翼龙骑士动态图标
+            bitmap = Anim.readBitMap("actor_anim/WyvernKnightEnemyDynamic.png");
+            bitmaps = Anim.splitBitmap(bitmap, 13, 3, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(200);
+            actorAnims.put("WyvernKnightEnemyDynamic", actorAnim);
+
+            //翼龙骑士下移动画
+            bitmaps = Anim.splitBitmap(bitmap, 5, 4, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("WyvernKnightEnemyDown", actorAnim);
+
+            //翼龙骑士左移动画
+            bitmaps = Anim.splitBitmap(bitmap, 1, 4, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("WyvernKnightEnemyLeft", actorAnim);
+
+            //翼龙骑士右移动画
+            bitmaps = Anim.toMirrorBitmap(bitmaps);//左移动画帧左右翻转得到右移动画帧
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("WyvernKnightEnemyRight", actorAnim);
+
+            //翼龙骑士上移动画
+            bitmaps = Anim.splitBitmap(bitmap, 9, 4, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("WyvernKnightEnemyUp", actorAnim);
         }
     }
 }

@@ -12,6 +12,8 @@ public class Actors {
         actors.put(actor.getActorKey(), actor);
         actor = new Actor("MautheDog");
         actors.put(actor.getActorKey(), actor);
+        actor = new Actor("Walter");
+        actors.put(actor.getActorKey(), actor);
     }
 
     public static Actor getActor(int[] xyTile){

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actor>
+    <!--配置信息-->
+    <party>2</party><!--阵营，0我军，1友军，2敌军，3未知-->
+    <xy>10,6</xy><!--坐标，以坐上角格子为0,0-->
+
+    <!--角色信息-->
+    <actor-key>Walter</actor-key><!--角色标识-->
+    <career-key>WyvernKnight</career-key><!--职业标识-->
+    <name>沃尔塔</name><!--角色名-->
+    <info>古拉德帝国将军之一，拥有 【月长石】之称号的残忍的将军</info><!--角色说明-->
+    <face>Walter.png</face><!--角色头像，不写则使用职业头像-->
+
+    <!--角色能力修正（相对于职业初始能力，负数为降低，正数为提高，不写和0为不变）-->
+    <adj-lv>12</adj-lv><!--等级-->
+    <adj-mhp>20</adj-mhp><!--最大HP-->
+    <adj-str>12</adj-str><!--力量-->
+    <adj-mag>5</adj-mag><!--魔力-->
+    <adj-skl>10</adj-skl><!--技术-->
+    <adj-spd>7</adj-spd><!--速度-->
+    <adj-luc>3</adj-luc><!--幸运-->
+    <adj-def>6</adj-def><!--守备-->
+    <adj-res>9</adj-res><!--魔防-->
+    <adj-mov></adj-mov><!--移动-->
+    <adj-con>1</adj-con><!--体格-->
+    <adj-mnt>3</adj-mnt><!--直接指定坐骑，不写和0无，1马，2天马，3飞龙-->
+    <adj-aff>4</adj-aff><!--直接指定属性，不写和0无，1"炎"，2"雷"，3"风"，4"冰"，5"暗"，6"光",，"理"-->
+
+    <!--角色成长率，不写则使用职业成长率-->
+    <grow-mhp>80</grow-mhp>
+    <grow-str>40</grow-str>
+    <grow-mag>25</grow-mag>
+    <grow-skl>55</grow-skl>
+    <grow-spd>50</grow-spd>
+    <grow-luc>15</grow-luc>
+    <grow-def>20</grow-def>
+    <grow-res>20</grow-res>
+
+    <!--武器熟练度，不写则使用职业武器熟练度-->
+    <exp-swd></exp-swd>
+    <exp-lan>181</exp-lan>
+    <exp-axe></exp-axe>
+    <exp-bow></exp-bow>
+    <exp-stf></exp-stf>
+    <exp-anm></exp-anm>
+    <exp-lgt></exp-lgt>
+    <exp-drk></exp-drk>
+</actor>

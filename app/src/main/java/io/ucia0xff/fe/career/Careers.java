@@ -10,8 +10,8 @@ public class Careers {
     static {
         career = new Career("SisterNatasha");
         careers.put(career.getKey(), career);
-        career = new Career("MautheDog");
-        careers.put(career.getKey(), career);
+//        career = new Career("MautheDog");
+//        careers.put(career.getKey(), career);
     }
 
     public static Career getCareer(String careerKey){

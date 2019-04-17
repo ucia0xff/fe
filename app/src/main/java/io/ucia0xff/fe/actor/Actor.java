@@ -3,12 +3,12 @@ package io.ucia0xff.fe.actor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.InputStream;
-import java.util.Iterator;
 
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.anim.ActorAnims;
@@ -265,8 +265,8 @@ public class Actor {
     }
 
     //角色按照移动路径移动
-    public boolean move(ActorMoveHelper.NodeList movePath) {
-        ActorMoveHelper.Node nextNode;
+    public boolean move(ActorMove.NodeList movePath) {
+        ActorMove.Node nextNode;
         int[] nextXy;
         for (int i=0;i<movePath.size();i++) {
             nextNode = movePath.get(i);
@@ -276,22 +276,22 @@ public class Actor {
                 nextNode = movePath.get(i+1);//找到当前位置的下一个位置
                 nextXy = nextNode.getXy();
                 if (nextXy[0] < xyInMapTile[0]) {//左移
-                    xyInMapPx[0] -= 10;
+                    xyInMapPx[0] -= Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_LEFT);
                     if (xyInMapPx[0] == (xyInMapTile[0]-1) * Values.MAP_TILE_WIDTH)
                         xyInMapTile[0] -= 1;
                 } else if (nextXy[0] > xyInMapTile[0]){//右移
-                    xyInMapPx[0] += 10;
+                    xyInMapPx[0] += Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_RIGHT);
                     if (xyInMapPx[0] == (xyInMapTile[0]+1) * Values.MAP_TILE_WIDTH)
                         xyInMapTile[0] += 1;
                 } else if (nextXy[1] < xyInMapTile[1]){//上移
-                    xyInMapPx[1] -= 10;
+                    xyInMapPx[1] -= Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_UP);
                     if (xyInMapPx[1] == (xyInMapTile[1]-1) * Values.MAP_TILE_HEIGHT)
                         xyInMapTile[1] -= 1;
                 } else if (nextXy[1] > xyInMapTile[1]){//下移
-                    xyInMapPx[1] += 10;
+                    xyInMapPx[1] += Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_DOWN);
                     if (xyInMapPx[1] == (xyInMapTile[1]+1) * Values.MAP_TILE_HEIGHT)
                         xyInMapTile[1] += 1;

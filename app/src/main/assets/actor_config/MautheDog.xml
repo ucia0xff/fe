@@ -2,7 +2,7 @@
 <actor>
     <!--配置信息-->
     <party>0</party><!--阵营-->
-    <xy>10,6</xy><!--坐标-->
+    <xy>9,6</xy><!--坐标-->
 
     <!--角色信息-->
     <actor-key>MautheDog</actor-key><!--角色标识-->

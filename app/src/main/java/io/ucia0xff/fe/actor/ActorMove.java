@@ -14,7 +14,7 @@ import io.ucia0xff.fe.career.Careers;
 import io.ucia0xff.fe.map.Map;
 import io.ucia0xff.fe.map.Terrain;
 
-public class ActorMoveHelper {
+public class ActorMove {
     private Map map;
     private Actor srcActor;
     private Actor dstActor;
@@ -36,7 +36,7 @@ public class ActorMoveHelper {
             {-1, 0}//左
     };
 
-    public ActorMoveHelper(Map map){
+    public ActorMove(Map map){
         this.map = map;
         moveRange = new NodeList();
         movePath = new NodeList();
@@ -46,7 +46,7 @@ public class ActorMoveHelper {
         src = new Rect(0, 0, blockMove.getWidth(), blockMove.getHeight());
         dst = new Rect(0, 0, Values.MAP_TILE_WIDTH, Values.MAP_TILE_HEIGHT);
     }
-    public ActorMoveHelper(Actor srcActor, Map map){
+    public ActorMove(Actor srcActor, Map map){
         this(map);
         this.setSrcActor(srcActor);
     }
@@ -209,7 +209,7 @@ public class ActorMoveHelper {
             this.xy = new int[2];
             this.xy[0] = xy[0];
             this.xy[1] = xy[1];
-            this.moveCost = Terrain.MOVE_COST[Careers.getCareer(srcActor.getCareerKey()).getMoveType()][map.getTerrain(this.xy)];
+            this.moveCost = Terrain.MOVE_COST[Careers.getCareer(srcActor.getCareerKey()).getType()][map.getTerrain(this.xy)];
             this.parent = null;
         }
 

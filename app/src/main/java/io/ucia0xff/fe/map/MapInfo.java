@@ -26,7 +26,7 @@ public class MapInfo {
 
     //构造方法
     public MapInfo(Map map){
-        bg = Anim.readBitMap(R.drawable.bg_terrain);
+        bg = Anim.readBitMap(R.drawable.bg_terrain_info);
         src = new Rect(0, 0, bg.getWidth(), bg.getHeight());
         dst = new Rect(0, 0, 3*Values.MAP_TILE_WIDTH, 3*Values.MAP_TILE_WIDTH/bg.getWidth() *bg.getHeight());
         setTerrain(map.getTerrain());
