@@ -110,6 +110,10 @@ public class Values {
     public static final String WEAPON_BOW = "Bow";
     public static final String WEAPON_MAGIC = "Magic";
 
+    //伤害类型
+    public static final int DAMAGE_TYPE_PHYSICS = 0;
+    public static final int DAMAGE_TYPE_MAGICAL = 1;
+
     //攻击方式
     public static final String MELEE_ATK = "MeleeAtk";//攻击
     public static final String MELEE_CRT = "MeleeCrt";//必杀
@@ -127,4 +131,20 @@ public class Values {
     //人物头像宽高
     public static final int RES_FACE_WIDTH = 80;
     public static final int RES_FACE_HEIGHT = 80;
+
+    //物品类型
+    public static final int ITEM_TYPE_SWORD = 0;
+    public static final int ITEM_TYPE_LANCE = 1;
+    public static final int ITEM_TYPE_AXE = 2;
+    public static final int ITEM_TYPE_BOW = 3;
+    public static final int ITEM_TYPE_STAFF = 4;
+    public static final int ITEM_TYPE_ANIMA = 5;
+    public static final int ITEM_TYPE_LIGHT = 6;
+    public static final int ITEM_TYPE_DARK = 7;
+    public static final int ITEM_TYPE_ITEM = 8;
+    public static final int ITEM_TYPE_OTHERS = 9;
+
+    //人物头像宽高
+    public static final int RES_ITEM_WIDTH = 16;
+    public static final int RES_ITEM_HEIGHT = 16;
 }

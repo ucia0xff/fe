@@ -13,6 +13,8 @@ import android.view.View;
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.actor.*;
 import io.ucia0xff.fe.anim.*;
+import io.ucia0xff.fe.item.Item;
+import io.ucia0xff.fe.item.Items;
 import io.ucia0xff.fe.map.*;
 
 public class GameView extends SurfaceView
@@ -85,6 +87,7 @@ public class GameView extends SurfaceView
         setParties(actors);
         actorInfo = new ActorInfo();
 //        gameOptions = new GameOptions(context);
+
 
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
@@ -390,44 +393,6 @@ public class GameView extends SurfaceView
         nowParty = (nowParty+1)%parties;
     }*/
 
-/*    //移动过程
-    public void Moving(Actor actor) {
-        int[] actorXY = actor.getXyInMapTile();
-        if (dirIndex < actor.getMove()) {
-            switch (directions[dirIndex]) {
-                case Values.MAP_ANIM_UP:
-                    actorXY[1] -= 1;
-                    actor.setNowAnim(Values.MAP_ANIM_UP);
-                    actor.setXyInMapTile(actorXY);
-                    dirIndex++;
-                    break;
-                case Values.MAP_ANIM_RIGHT:
-                    actorXY[0] += 1;
-                    actor.setNowAnim(Values.MAP_ANIM_RIGHT);
-                    actor.setXyInMapTile(actorXY);
-                    dirIndex++;
-                    break;
-                case Values.MAP_ANIM_DOWN:
-                    actorXY[1] += 1;
-                    actor.setNowAnim(Values.MAP_ANIM_DOWN);
-                    actor.setXyInMapTile(actorXY);
-                    dirIndex++;
-                    break;
-                case Values.MAP_ANIM_LEFT:
-                    actorXY[0] -= 1;
-                    actor.setNowAnim(Values.MAP_ANIM_LEFT);
-                    actor.setXyInMapTile(actorXY);
-                    dirIndex++;
-                    break;
-                default:
-                    GAME_CASE = Values.CASE_AFTER_MOVE;//未达到最大移动力或通过复杂地形的移动结束
-                    dirIndex = 0;//复位
-            }
-        } else {
-            GAME_CASE = Values.CASE_AFTER_MOVE;//达到最大移动力的移动结束
-            dirIndex = 0;//复位
-        }
-    }*/
 
     public void setParties(java.util.Map<String, Actor> actors){
         parties = 0;

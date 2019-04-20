@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<item>
+    <id>1</id>
+    <type>0</type>
+    <name>铁剑</name>
+    <info>使用顺手的剑</info>
+    <icon>IronSword.png</icon>
+    <uses>46</uses>
+    <can-use>0</can-use>
+    <can-equip>1</can-equip>
+    <dmg-type>0</dmg-type>
+
+    <lv>1</lv>
+    <atk>5</atk>
+    <hit>90</hit>
+    <wgt>5</wgt>
+    <crt>0</crt>
+    <range>1,1</range>
+    <exp>1</exp>
+</item>

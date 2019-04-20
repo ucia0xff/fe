@@ -9,12 +9,14 @@ import android.util.Xml;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.InputStream;
+import java.util.List;
 
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.anim.ActorAnims;
 import io.ucia0xff.fe.anim.Anim;
 import io.ucia0xff.fe.career.Career;
 import io.ucia0xff.fe.career.Careers;
+import io.ucia0xff.fe.item.Item;
 
 public class Actor {
     //配置信息
@@ -29,6 +31,9 @@ public class Actor {
     private String name;//角色名
     private String info;//角色说明
     private Bitmap face;//角色头像
+
+    private List<Item> items;//携带的物品
+    private Item equipedWeapon;//当前装备的武器
 
     //能力信息
     private int LV;//等级
@@ -71,7 +76,8 @@ public class Actor {
     private int expDrk;
 
     //战斗面板
-    private int atk;//攻击
+    private int atk;//物攻
+    private int mat;//魔攻
     private int hit;//命中
     private int avd;//回避
     private int crt;//必杀
@@ -108,7 +114,7 @@ public class Actor {
                         xyInMapPx[1] = xyInMapTile[1] * Values.MAP_TILE_HEIGHT;
                     } else if ("actor-key".equals(parser.getName())) {
                         String key = parser.nextText().trim();
-                        actorKey = (key.length() > 0)?key:"";//角色标识
+                        actorKey = (key.length() > 0) ? key : "";//角色标识
                     } else if ("career-key".equals(parser.getName())) {
                         String key = parser.nextText().trim();
                         if (!Careers.careers.containsKey(key))
@@ -172,35 +178,35 @@ public class Actor {
                         String adjust = parser.nextText();
                         mnt = Careers.getCareer(careerKey).getInitMnt();
                         if (adjust.length() > 0) mnt = Integer.parseInt(adjust);
-                        aid = (mnt == 0)? con - 1 : Careers.getCareer(careerKey).getMaxCon() - con;
+                        aid = (mnt == 0) ? con - 1 : Careers.getCareer(careerKey).getMaxCon() - con;
                     } else if ("adj-aff".equals(parser.getName())) {
                         String adjust = parser.nextText();
                         aff = Careers.getCareer(careerKey).getInitAff();
                         if (adjust.length() > 0) aff = Integer.parseInt(adjust);
                     } else if ("grow-mhp".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growMHP = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowMHP();
+                        growMHP = (rate.length() > 0) ? Integer.parseInt(rate) : Careers.getCareer(careerKey).getGrowMHP();
                     } else if ("grow-str".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growStr = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowStr();
+                        growStr = (rate.length() > 0) ? Integer.parseInt(rate) : Careers.getCareer(careerKey).getGrowStr();
                     } else if ("grow-mag".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growMag = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowMag();
+                        growMag = (rate.length() > 0) ? Integer.parseInt(rate) : Careers.getCareer(careerKey).getGrowMag();
                     } else if ("grow-skl".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growSkl = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowSkl();
+                        growSkl = (rate.length() > 0) ? Integer.parseInt(rate) : Careers.getCareer(careerKey).getGrowSkl();
                     } else if ("grow-spd".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growSpd = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowSpd();
+                        growSpd = (rate.length() > 0) ? Integer.parseInt(rate) : Careers.getCareer(careerKey).getGrowSpd();
                     } else if ("grow-luc".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growLuc = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowLuc();
+                        growLuc = (rate.length() > 0) ? Integer.parseInt(rate) : Careers.getCareer(careerKey).getGrowLuc();
                     } else if ("grow-def".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growDef = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowDef();
+                        growDef = (rate.length() > 0) ? Integer.parseInt(rate) : Careers.getCareer(careerKey).getGrowDef();
                     } else if ("grow-res".equals(parser.getName())) {
                         String rate = parser.nextText();
-                        growRes = (rate.length() > 0) ? Integer.parseInt(rate) :  Careers.getCareer(careerKey).getGrowRes();
+                        growRes = (rate.length() > 0) ? Integer.parseInt(rate) : Careers.getCareer(careerKey).getGrowRes();
                     } else if ("exp-swd".equals(parser.getName())) {
                         String exp = parser.nextText();
                         expSwd = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.getCareer(careerKey).getInitSwd();
@@ -268,32 +274,32 @@ public class Actor {
     public boolean move(ActorMove.NodeList movePath) {
         ActorMove.Node nextNode;
         int[] nextXy;
-        for (int i=0;i<movePath.size();i++) {
+        for (int i = 0; i < movePath.size(); i++) {
             nextNode = movePath.get(i);
             if (!(nextNode.equals(xyInMapTile)))//找到移动路径中的当前位置
                 continue;
-            if (i<movePath.size()-1) {
-                nextNode = movePath.get(i+1);//找到当前位置的下一个位置
+            if (i < movePath.size() - 1) {
+                nextNode = movePath.get(i + 1);//找到当前位置的下一个位置
                 nextXy = nextNode.getXy();
                 if (nextXy[0] < xyInMapTile[0]) {//左移
                     xyInMapPx[0] -= Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_LEFT);
-                    if (xyInMapPx[0] == (xyInMapTile[0]-1) * Values.MAP_TILE_WIDTH)
+                    if (xyInMapPx[0] == (xyInMapTile[0] - 1) * Values.MAP_TILE_WIDTH)
                         xyInMapTile[0] -= 1;
-                } else if (nextXy[0] > xyInMapTile[0]){//右移
+                } else if (nextXy[0] > xyInMapTile[0]) {//右移
                     xyInMapPx[0] += Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_RIGHT);
-                    if (xyInMapPx[0] == (xyInMapTile[0]+1) * Values.MAP_TILE_WIDTH)
+                    if (xyInMapPx[0] == (xyInMapTile[0] + 1) * Values.MAP_TILE_WIDTH)
                         xyInMapTile[0] += 1;
-                } else if (nextXy[1] < xyInMapTile[1]){//上移
+                } else if (nextXy[1] < xyInMapTile[1]) {//上移
                     xyInMapPx[1] -= Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_UP);
-                    if (xyInMapPx[1] == (xyInMapTile[1]-1) * Values.MAP_TILE_HEIGHT)
+                    if (xyInMapPx[1] == (xyInMapTile[1] - 1) * Values.MAP_TILE_HEIGHT)
                         xyInMapTile[1] -= 1;
-                } else if (nextXy[1] > xyInMapTile[1]){//下移
+                } else if (nextXy[1] > xyInMapTile[1]) {//下移
                     xyInMapPx[1] += Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_DOWN);
-                    if (xyInMapPx[1] == (xyInMapTile[1]+1) * Values.MAP_TILE_HEIGHT)
+                    if (xyInMapPx[1] == (xyInMapTile[1] + 1) * Values.MAP_TILE_HEIGHT)
                         xyInMapTile[1] += 1;
                 }
                 return true;
@@ -304,6 +310,15 @@ public class Actor {
         return true;
     }
 
+    //攻击
+    public void doAttack() {
+
+    }
+
+    //被攻击
+    public void beAttacked(){
+
+    }
     public boolean equals(Actor actor) {
         if (actor == null)
             return false;
@@ -372,6 +387,22 @@ public class Actor {
 
     public void setFace(Bitmap face) {
         this.face = face;
+    }
+
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
+
+    public Item getEquipedWeapon() {
+        return equipedWeapon;
+    }
+
+    public void setEquipedWeapon(Item equipedWeapon) {
+        this.equipedWeapon = equipedWeapon;
     }
 
     public int getLV() {
@@ -639,6 +670,10 @@ public class Actor {
     }
 
     public int getAtk() {
+        atk = str;
+        if (equipedWeapon != null && equipedWeapon.getDmgType()==Values.DAMAGE_TYPE_PHYSICS){
+            atk += equipedWeapon.getAtk();
+        }
         return atk;
     }
 
@@ -646,7 +681,23 @@ public class Actor {
         this.atk = atk;
     }
 
+    public int getMat() {
+        mat = getMag();
+        if (equipedWeapon != null && equipedWeapon.getDmgType()==Values.DAMAGE_TYPE_MAGICAL){
+            mat += equipedWeapon.getAtk();
+        }
+        return mat;
+    }
+
+    public void setMat(int mat) {
+        this.mat = mat;
+    }
+
     public int getHit() {
+        hit = getSkl() * 2;
+        if (equipedWeapon != null){
+            hit += equipedWeapon.getHit();
+        }
         return hit;
     }
 
@@ -655,6 +706,7 @@ public class Actor {
     }
 
     public int getAvd() {
+        avd = getSpd() * 2 + getLuc();
         return avd;
     }
 
@@ -663,6 +715,10 @@ public class Actor {
     }
 
     public int getCrt() {
+        crt = getSkl() / 2;
+        if (equipedWeapon != null) {
+            crt += equipedWeapon.getCrt();
+        }
         return crt;
     }
 
@@ -671,6 +727,10 @@ public class Actor {
     }
 
     public int getAsp() {
+        asp = getSpd();
+        if (equipedWeapon != null && getCon() < equipedWeapon.getWgt()){
+            asp -= equipedWeapon.getWgt() - getCon();
+        }
         return asp;
     }
 
