@@ -16,9 +16,18 @@ public class Actors {
         actors.put(actor.getActorKey(), actor);
     }
 
-    public static Actor getActor(int[] xyTile){
-        for (Actor actor:actors.values()) {
-            if(actor.getXyInMapTile()[0]==xyTile[0] && actor.getXyInMapTile()[1]==xyTile[1]) {
+    public static Actor getActor(int[] xyTile) {
+        for (Actor actor : actors.values()) {
+            if (actor.getXyInMapTile()[0] == xyTile[0] && actor.getXyInMapTile()[1] == xyTile[1]) {
+                return actor;
+            }
+        }
+        return null;
+    }
+
+    public static Actor getActor(String actorKey) {
+        for (Actor actor : actors.values()) {
+            if (actor.getActorKey().equals(actorKey)) {
                 return actor;
             }
         }

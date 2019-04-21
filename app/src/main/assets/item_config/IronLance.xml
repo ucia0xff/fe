@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<item>
+    <key>IronLance</key>
+    <type>1</type>
+    <name>铁枪</name>
+    <info>骑士们得心应手的枪</info>
+    <icon>IronLance.png</icon>
+    <uses>45</uses>
+    <can-use>0</can-use>
+    <can-equip>1</can-equip>
+    <dmg-type>0</dmg-type>
+
+    <lv>1</lv>
+    <atk>7</atk>
+    <hit>80</hit>
+    <wgt>8</wgt>
+    <crt>0</crt>
+    <range>1,1</range>
+    <exp>1</exp>
+</item>

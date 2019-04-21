@@ -29,11 +29,11 @@ public class GameView extends SurfaceView
     public static java.util.Map<String, Actor> actors = null;//场上所有角色的列表
     public static Actor selectedActor = null;//当前角色
     public static Actor targetActor = null;//目标角色
-    Map map;//地图对象
-    CursorAnim cursor;//鼠标动画
-    MapInfo mapInfo;
-    ActorMove move;
-    ActorInfo actorInfo;
+    public Map map;//地图对象
+    public CursorAnim cursor;//鼠标动画
+    public MapInfo mapInfo;
+    public ActorMove move;
+    public ActorInfo actorInfo;
 //    GameOptions gameOptions;
 
     //画笔

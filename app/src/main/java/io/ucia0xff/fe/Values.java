@@ -141,8 +141,11 @@ public class Values {
     public static final int ITEM_TYPE_ANIMA = 5;
     public static final int ITEM_TYPE_LIGHT = 6;
     public static final int ITEM_TYPE_DARK = 7;
-    public static final int ITEM_TYPE_ITEM = 8;
-    public static final int ITEM_TYPE_OTHERS = 9;
+    public static final int ITEM_TYPE_OTHERS = 8;
+    public static final int ITEM_TYPE_ITEM = 9;
+
+    //物品数量上限
+    public static final int ITEM_MAX_NUM = 5;
 
     //人物头像宽高
     public static final int RES_ITEM_WIDTH = 16;

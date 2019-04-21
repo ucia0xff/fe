@@ -18,9 +18,9 @@ public class MapInfo {
     private Rect dst;
 
     //地形信息
-    private int[][] terrain;
+    public static int[][] terrain;
     private String terrainName = "";
-    private int[] terrainEffect;
+    public static int[] terrainEffect;
     private String effectText = "";
     private int strLength;
 
@@ -36,7 +36,7 @@ public class MapInfo {
         this.terrain = terrain;
     }
 
-    public int getTerrain(int[] xy){
+    public static int getTerrain(int[] xy){
         return terrain[xy[1]][xy[0]];
     }
 

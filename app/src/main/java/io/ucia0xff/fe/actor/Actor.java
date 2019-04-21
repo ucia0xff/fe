@@ -9,6 +9,7 @@ import android.util.Xml;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.ucia0xff.fe.Values;
@@ -17,6 +18,9 @@ import io.ucia0xff.fe.anim.Anim;
 import io.ucia0xff.fe.career.Career;
 import io.ucia0xff.fe.career.Careers;
 import io.ucia0xff.fe.item.Item;
+import io.ucia0xff.fe.item.Items;
+import io.ucia0xff.fe.map.MapInfo;
+import io.ucia0xff.fe.map.Terrain;
 
 public class Actor {
     //配置信息
@@ -231,6 +235,20 @@ public class Actor {
                     } else if ("exp-drk".equals(parser.getName())) {
                         String exp = parser.nextText();
                         expDrk = (exp.length() > 0) ? Integer.parseInt(exp) : Careers.getCareer(careerKey).getInitDrk();
+                    } else if ("items".equals(parser.getName())) {
+                        items = new ArrayList<>();
+                        Item item;
+                        String str = parser.nextText().trim();
+                        if (str.length()>0) {
+                            String[] keys = str.split(",");
+                            for (String key : keys) {
+                                if ((item = Items.getItem(key)) == null)
+                                    item = new Item(key);
+                                if (items.size()<Values.ITEM_MAX_NUM)
+                                    items.add(item);
+                            }
+                        }
+                        setEquipedWeapon();
                     }
                 }
                 //获取到下一个节点，在触发解析动作
@@ -397,8 +415,64 @@ public class Actor {
         this.items = items;
     }
 
+    public boolean addItem(Item item) {
+        if (items.size()==Values.ITEM_MAX_NUM)
+            return false;
+        items.add(item);
+        return true;
+    }
+
+    public boolean delItem(int index) {
+        items.remove(index-1);
+        return true;
+    }
+
+    public boolean canEquip(Item item){
+        if (!item.canEquip())
+            return false;
+        int itemLv = item.getLv();
+        int actorExp = 0;
+        switch (item.getType()){
+            case Values.ITEM_TYPE_SWORD:
+                actorExp = getExpSwd();
+                break;
+            case Values.ITEM_TYPE_LANCE:
+                actorExp = getExpLan();
+                break;
+            case Values.ITEM_TYPE_AXE:
+                actorExp = getExpAxe();
+                break;
+            case Values.ITEM_TYPE_BOW:
+                actorExp = getExpBow();
+                break;
+            case Values.ITEM_TYPE_STAFF:
+                actorExp = getExpStf();
+                break;
+            case Values.ITEM_TYPE_ANIMA:
+                actorExp = getExpAnm();
+                break;
+            case Values.ITEM_TYPE_LIGHT:
+                actorExp = getExpLgt();
+                break;
+            case Values.ITEM_TYPE_DARK:
+                actorExp = getExpDrk();
+                break;
+        }
+        return actorExp >= itemLv;
+    }
+
     public Item getEquipedWeapon() {
         return equipedWeapon;
+    }
+
+    public void setEquipedWeapon() {
+        for (Item item:items){
+            if (item!=null && this.canEquip(item)) {
+                setEquipedWeapon(item);
+                Log.d("ACTOR_INFO", "正装备的武器：" + item.getName());
+                return;
+            }
+        }
     }
 
     public void setEquipedWeapon(Item equipedWeapon) {
@@ -669,6 +743,14 @@ public class Actor {
         this.expDrk = expDrk;
     }
 
+    public String getRng(){
+        String rng = "--";
+        if (equipedWeapon !=null){
+            rng = equipedWeapon.getRange()[0] + "~" + equipedWeapon.getRange()[1];
+        }
+        return rng;
+    }
+
     public int getAtk() {
         atk = str;
         if (equipedWeapon != null && equipedWeapon.getDmgType()==Values.DAMAGE_TYPE_PHYSICS){
@@ -694,7 +776,7 @@ public class Actor {
     }
 
     public int getHit() {
-        hit = getSkl() * 2;
+        hit = getSkl() * 2 + getLuc() / 2;
         if (equipedWeapon != null){
             hit += equipedWeapon.getHit();
         }
@@ -706,7 +788,7 @@ public class Actor {
     }
 
     public int getAvd() {
-        avd = getSpd() * 2 + getLuc();
+        avd = getSpd() * 2 + getLuc() + Terrain.TERRAIN_EFFECT[MapInfo.getTerrain(xyInMapTile)][0];
         return avd;
     }
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<item>
+    <key>Vidofnir</key>
+    <type>1</type>
+    <name>彼得弗尼尔</name>
+    <info>双圣器『翼枪』</info>
+    <icon>Vidofnir.png</icon>
+    <uses>30</uses>
+    <can-use>0</can-use>
+    <can-equip>1</can-equip>
+    <dmg-type>0</dmg-type>
+
+    <lv>251</lv>
+    <atk>15</atk>
+    <hit>80</hit>
+    <wgt>11</wgt>
+    <crt>0</crt>
+    <range>1,1</range>
+    <exp>1</exp>
+</item>

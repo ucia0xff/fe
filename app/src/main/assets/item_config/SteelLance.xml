@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<item>
+    <key>SteelLance</key>
+    <type>1</type>
+    <name>钢枪</name>
+    <info>有些重，威力比较大的枪</info>
+    <icon>SteelLance.png</icon>
+    <uses>30</uses>
+    <can-use>0</can-use>
+    <can-equip>1</can-equip>
+    <dmg-type>0</dmg-type>
+
+    <lv>31</lv>
+    <atk>10</atk>
+    <hit>70</hit>
+    <wgt>13</wgt>
+    <crt>0</crt>
+    <range>1,1</range>
+    <exp>2</exp>
+</item>

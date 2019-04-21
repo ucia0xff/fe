@@ -14,8 +14,8 @@ public class Careers {
 //        careers.put(career.getKey(), career);
     }
 
-    public static Career getCareer(String careerKey){
-        for (Career career : careers.values()){
+    public static Career getCareer(String careerKey) {
+        for (Career career : careers.values()) {
             if (career.getKey().equals(careerKey)) {
                 return career;
             }

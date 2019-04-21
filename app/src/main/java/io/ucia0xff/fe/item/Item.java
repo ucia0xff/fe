@@ -15,7 +15,7 @@ import io.ucia0xff.fe.anim.Anim;
 
 public class Item {
 
-    private int id;//物品ID
+    private String key;//物品标识
     private int type;//物品类型
     private String name;//物品名称
     private String info;//物品说明
@@ -49,8 +49,8 @@ public class Item {
             //当还没有解析到结束文档的节点，一直循环
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
-                    if ("id".equals(parser.getName())) {
-                        id = Integer.parseInt(parser.nextText());
+                    if ("key".equals(parser.getName())) {
+                        key = parser.nextText().trim();
                     } else if ("type".equals(parser.getName())){
                         type = Integer.parseInt(parser.nextText());
                     } else if ("name".equals(parser.getName())){
@@ -83,6 +83,7 @@ public class Item {
                         range = new int[2];
                         range[0] = Integer.parseInt(str[0]);
                         range[1] = Integer.parseInt(str[1]);
+                        Log.d("ITEM_INFO", "射程" + range[0] + "~" + range[1]);
                     } else if ("exp".equals(parser.getName()) && canEquip){
                         exp = Integer.parseInt(parser.nextText());
                     }
@@ -96,12 +97,12 @@ public class Item {
         }
     }
 
-    public int getId() {
-        return id;
+    public String getKey() {
+        return key;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public int getType() {

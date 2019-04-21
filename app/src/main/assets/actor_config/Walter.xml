@@ -45,4 +45,6 @@
     <exp-anm></exp-anm>
     <exp-lgt></exp-lgt>
     <exp-drk></exp-drk>
+
+    <items>IronLance,SteelLance,SilverLance,Vidofnir,IronSword</items>
 </actor>

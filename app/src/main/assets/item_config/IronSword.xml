@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <item>
-    <id>1</id>
+    <key>IronSword</key>
     <type>0</type>
     <name>铁剑</name>
     <info>使用顺手的剑</info>

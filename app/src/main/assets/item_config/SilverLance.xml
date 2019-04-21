@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<item>
+    <key>SilverLance</key>
+    <type>1</type>
+    <name>银枪</name>
+    <info>具有强大威力的高价之枪</info>
+    <icon>SilverLance.png</icon>
+    <uses>20</uses>
+    <can-use>0</can-use>
+    <can-equip>1</can-equip>
+    <dmg-type>0</dmg-type>
+
+    <lv>181</lv>
+    <atk>14</atk>
+    <hit>75</hit>
+    <wgt>10</wgt>
+    <crt>0</crt>
+    <range>1,1</range>
+    <exp>1</exp>
+</item>

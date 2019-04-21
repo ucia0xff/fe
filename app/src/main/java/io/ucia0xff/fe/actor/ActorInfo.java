@@ -5,17 +5,21 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import java.util.Arrays;
+
 import io.ucia0xff.fe.Paints;
 import io.ucia0xff.fe.R;
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.anim.Anim;
 import io.ucia0xff.fe.career.Career;
 import io.ucia0xff.fe.career.Careers;
+import io.ucia0xff.fe.item.Item;
 
 public class ActorInfo {
 
     private Actor actor;
     private Career career;
+    private Item equipedWeapon;
 
     //背景图片
     private Bitmap bg;
@@ -241,7 +245,15 @@ public class ActorInfo {
         canvas.drawText("状态", rightNameStartX, startY, Paints.paints.get("ability_name"));
     }
 
+
+    //显示物品和装备信息
     public void displayItems(Canvas canvas, Paint paint) {
+        int leftIconStartX = Values.SCREEN_WIDTH / 20;//左侧各种物品图标显示的起始坐标
+        int leftNameStartX = leftIconStartX+100;//左侧文字显示的起始坐标
+        int leftNameStopX = Values.SCREEN_WIDTH / 10 * 4;//左侧文字显示的终止坐标
+        int rightNameStartX = leftNameStartX + Values.SCREEN_WIDTH / 2;//右侧文字显示的起始坐标
+        int rightNameStopX = Values.SCREEN_WIDTH / 10 * 9;//右侧各种道具耐久显示的终止坐标
+
         int startY = basicDst.bottom;
         int rowStep = (Values.SCREEN_HEIGHT - basicDst.bottom) / 10;
 
@@ -249,6 +261,67 @@ public class ActorInfo {
         startY += rowStep;
         canvas.drawText("武器道具", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("page_title"));
 
+        for (Item item : actor.getItems()) {
+            startY += rowStep;
+            canvas.drawBitmap(item.getIcon(), new Rect(0, 0, Values.RES_ITEM_WIDTH, Values.RES_ITEM_HEIGHT), new Rect(leftIconStartX, startY - 60, leftIconStartX + 100, startY + 40), Paints.paints.get("normal"));
+            paint = Paints.paints.get("item_name_white");
+            switch (item.getType()){
+                case Values.ITEM_TYPE_SWORD:
+                    if (item.getLv()>actor.getExpSwd())
+                        paint = Paints.paints.get("item_name_grey");
+                    break;
+                case Values.ITEM_TYPE_LANCE:
+                    if (item.getLv()>actor.getExpLan())
+                        paint = Paints.paints.get("item_name_grey");
+                    break;
+                case Values.ITEM_TYPE_AXE:
+                    if (item.getLv()>actor.getExpAxe())
+                        paint = Paints.paints.get("item_name_grey");
+                    break;
+                case Values.ITEM_TYPE_BOW:
+                    if (item.getLv()>actor.getExpBow())
+                        paint = Paints.paints.get("item_name_grey");
+                    break;
+                case Values.ITEM_TYPE_STAFF:
+                    if (item.getLv()>actor.getExpStf())
+                        paint = Paints.paints.get("item_name_grey");
+                    break;
+                case Values.ITEM_TYPE_ANIMA:
+                    if (item.getLv()>actor.getExpAnm())
+                        paint = Paints.paints.get("item_name_grey");
+                    break;
+                case Values.ITEM_TYPE_LIGHT:
+                    if (item.getLv()>actor.getExpLgt())
+                        paint = Paints.paints.get("item_name_grey");
+                    break;
+                case Values.ITEM_TYPE_DARK:
+                    if (item.getLv()>actor.getExpDrk())
+                        paint = Paints.paints.get("item_name_grey");
+                    break;
+                case Values.ITEM_TYPE_OTHERS:
+//                        paint = Paints.paints.get("item_name_grey");
+                    break;
+            }
+            canvas.drawText(item.getName(), leftNameStartX, startY, paint);
+            canvas.drawText(item.getUses()+"", rightNameStopX, startY, Paints.paints.get("item_uses_blue"));
+        }
+
+        startY = basicDst.bottom + 7 * rowStep;
+
+        canvas.drawText("射程", leftNameStartX, startY, Paints.paints.get("ability_name"));
+        canvas.drawText(""+actor.getRng(), leftNameStopX, startY, Paints.paints.get("item_uses_blue"));
+        canvas.drawText("命中", rightNameStartX, startY, Paints.paints.get("ability_name"));
+        canvas.drawText(""+actor.getHit(), rightNameStopX, startY, Paints.paints.get("item_uses_blue"));
+        startY += rowStep;
+        canvas.drawText("攻击", leftNameStartX, startY, Paints.paints.get("ability_name"));
+        canvas.drawText(""+actor.getAtk(), leftNameStopX, startY, Paints.paints.get("item_uses_blue"));
+        canvas.drawText("回避", rightNameStartX, startY, Paints.paints.get("ability_name"));
+        canvas.drawText(""+actor.getAvd(), rightNameStopX, startY, Paints.paints.get("item_uses_blue"));
+        startY += rowStep;
+        canvas.drawText("魔攻", leftNameStartX, startY, Paints.paints.get("ability_name"));
+        canvas.drawText(""+actor.getMat(), leftNameStopX, startY, Paints.paints.get("item_uses_blue"));
+        canvas.drawText("必杀", rightNameStartX, startY, Paints.paints.get("ability_name"));
+        canvas.drawText(""+actor.getCrt(), rightNameStopX, startY, Paints.paints.get("item_uses_blue"));
     }
 
     public void displayLevel(Canvas canvas, Paint paint) {
@@ -267,7 +340,7 @@ public class ActorInfo {
 
         //第一行标题
         startY += rowStep;
-        canvas.drawText("武器等级", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("page_title"));
+        canvas.drawText("熟练等级", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("page_title"));
 
 
         int barLength = leftBarStopX - leftBarStartX;

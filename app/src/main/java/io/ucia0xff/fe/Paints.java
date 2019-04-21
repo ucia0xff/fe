@@ -12,8 +12,15 @@ public class Paints {
 
     //预设的画笔样式
     static {
-        //地形名称
+        //通常
         Paint paint = new Paint();
+        paint.setTextSize(60);
+        paint.setColor(Color.WHITE);
+        paint.setTextAlign(Paint.Align.LEFT);
+        paints.put("normal", paint);
+
+        //地形名称
+        paint = new Paint();
         paint.setTextSize(60);
         paint.setColor(Color.WHITE);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -177,5 +184,29 @@ public class Paints {
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
         paints.put("weapon_level_green", paint);
+
+        //角色信息-物品名称/可装备武器
+        paint = new Paint();
+        paint.setTextSize(60);
+        paint.setColor(Color.WHITE);
+        paint.setTextAlign(Paint.Align.LEFT);
+        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
+        paints.put("item_name_white", paint);
+
+        //角色信息-物品名称/不可装备武器
+        paint = new Paint();
+        paint.setTextSize(60);
+        paint.setColor(Color.GRAY);
+        paint.setTextAlign(Paint.Align.LEFT);
+        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
+        paints.put("item_name_grey", paint);
+
+        //角色信息-物品耐久
+        paint = new Paint();
+        paint.setTextSize(60);
+        paint.setColor(Color.rgb(192,248,248));
+        paint.setTextAlign(Paint.Align.RIGHT);
+        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
+        paints.put("item_uses_blue", paint);
     }
 }
