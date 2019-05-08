@@ -109,6 +109,7 @@ public class GameView extends SurfaceView
             case Values.CASE_BEFORE_MOVE:
                 map.drawMap(canvas, paint, xyOffset);
                 move.drawMoveRange(canvas, paint, xyOffset);
+                move.drawAttackRange(canvas, paint, xyOffset);
                 DrawActors(canvas, paint, xyOffset);
                 DrawCursor(canvas, paint, xyOffset);
                 break;

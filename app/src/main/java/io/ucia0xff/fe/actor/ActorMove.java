@@ -11,6 +11,7 @@ import io.ucia0xff.fe.R;
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.anim.Anim;
 import io.ucia0xff.fe.career.Careers;
+import io.ucia0xff.fe.item.Item;
 import io.ucia0xff.fe.map.Map;
 import io.ucia0xff.fe.map.Terrain;
 
@@ -22,6 +23,8 @@ public class ActorMove {
     private Node nowNode;
     private Node newNode;
     private NodeList moveRange;//可移动范围
+    private NodeList attackRange;//可攻击范围
+    private NodeList staffRange;//杖使用范围
     private NodeList movePath;//移动路径
     private Bitmap block;
     private Bitmap blockMove;//可移动范围的色块
@@ -36,24 +39,27 @@ public class ActorMove {
             {-1, 0}//左
     };
 
-    public ActorMove(Map map){
+    public ActorMove(Map map) {
         this.map = map;
         moveRange = new NodeList();
         movePath = new NodeList();
+        attackRange = new NodeList();
+        staffRange = new NodeList();
         blockMove = Anim.readBitMap(R.drawable.block_move);
         blockStaff = Anim.readBitMap(R.drawable.block_staff);
         blockAttack = Anim.readBitMap(R.drawable.block_attack);
         src = new Rect(0, 0, blockMove.getWidth(), blockMove.getHeight());
         dst = new Rect(0, 0, Values.MAP_TILE_WIDTH, Values.MAP_TILE_HEIGHT);
     }
-    public ActorMove(Actor srcActor, Map map){
+
+    public ActorMove(Actor srcActor, Map map) {
         this(map);
         this.setSrcActor(srcActor);
     }
 
     //绘制移动范围
     public void drawMoveRange(Canvas canvas, Paint paint, int[] xyOffset) {
-        if (canvas==null) return;
+        if (canvas == null) return;
         int[] xyTile;
         for (int i = 0; i < moveRange.size(); i++) {
             xyTile = moveRange.get(i).getXy();
@@ -63,9 +69,23 @@ public class ActorMove {
         }
     }
 
+    //绘制攻击范围
+    public void drawAttackRange(Canvas canvas, Paint paint, int[] xyOffset) {
+        if (canvas == null) return;
+        int[] xyTile;
+        for (int i = 0; i < attackRange.size(); i++) {
+            if (moveRange.indexOf(attackRange.get(i)) != -1)
+                continue;
+            xyTile = attackRange.get(i).getXy();
+            dst.offsetTo(xyTile[0] * Values.MAP_TILE_WIDTH + xyOffset[0],
+                    xyTile[1] * Values.MAP_TILE_HEIGHT + xyOffset[1]);
+            drawBlock(canvas, paint, 1);
+        }
+    }
+
     //绘制一个格子
     private void drawBlock(Canvas canvas, Paint paint, int type) {
-        switch (type){
+        switch (type) {
             case 0:
                 block = blockMove;
                 break;
@@ -96,6 +116,7 @@ public class ActorMove {
         startNode = new Node(srcActor.getXyInMapTile());
         startNode.setMoveCost(0);
         this.setMoveRange();
+        this.setAtkRange();
     }
 
     public Actor getDstActor() {
@@ -130,6 +151,54 @@ public class ActorMove {
         this.newNode = newNode;
     }
 
+    //设置可攻击范围
+    public void setAtkRange() {
+        attackRange.clear();
+        Item weapon = srcActor.getEquipedWeapon();
+        if (weapon == null)
+            return;
+        int[] range = weapon.getRange();
+        if (moveRange.isEmpty())
+            setMoveRange();
+        attackRange.addAll(moveRange);
+        int[] nowXY;
+        int[] newXY = new int[2];
+        int index;
+        for (int i = range[0]; i <= range[1]; i++) {
+            for (int j = 0; j < attackRange.size(); j++) {//遍历可攻击范围里的每个节点
+                nowNode = attackRange.get(j);
+                nowXY = nowNode.getXy();
+                for (int k = 0; k < DIRECTION.length; k++) {//遍历该节点的4个方向得到新节点的坐标
+                    newXY[0] = nowXY[0] + DIRECTION[k][0];
+                    newXY[1] = nowXY[1] + DIRECTION[k][1];
+                    if (newXY[0] < 0 || newXY[1] < 0 ||
+                            newXY[0] >= map.getMapWidthTileCount() ||
+                            newXY[1] >= map.getMapHeightTileCount())//新坐标超出地图边界则不处理
+                        continue;
+                    else {
+                        newNode = new Node(newXY);
+                        newNode.distance = nowNode.distance + 1;
+                        index = attackRange.indexOf(newXY);
+                        if (index != -1) {//该格子已在攻击范围列表中
+                            if (newNode.distance <= attackRange.get(index).distance) {//
+                                attackRange.remove(index);
+                                attackRange.add(newNode);
+                            }
+                        } else if (newNode.distance<=i){
+                            attackRange.add(newNode);
+                        }
+                    }
+                }
+            }
+        }
+/*        for (Node node : moveRange) {
+            index = attackRange.indexOf(node);
+            if (index != -1)
+                attackRange.remove(index);
+        }*/
+    }
+
+
     public NodeList getMoveRange() {
         return moveRange;
     }
@@ -155,15 +224,15 @@ public class ActorMove {
                     newNode.setParent(nowNode);
                     newNode.setMoveCost(newNode.getMoveCost() + nowNode.getMoveCost());//从起点移动到新节点的移动力消耗
                     if (newNode.getMoveCost() <= srcActor.getMov()) {//如果该节点在距离上可达
-                        if ((dstActor = Actors.getActor(newXY))!=null) {//则判断该节点上有没有角色存在
-                            switch (srcActor.getParty()){//如果有，则判断两者的阵营关系
+                        if ((dstActor = Actors.getActor(newXY)) != null) {//则判断该节点上有没有角色存在
+                            switch (srcActor.getParty()) {//如果有，则判断两者的阵营关系
                                 case Values.PARTY_ALLY:
                                 case Values.PARTY_PLAYER:
-                                    if (dstActor.getParty()==Values.PARTY_ENEMY)//互为敌对阵营,不能通过该节点
+                                    if (dstActor.getParty() == Values.PARTY_ENEMY)//互为敌对阵营,不能通过该节点
                                         continue;
                                     break;
                                 case Values.PARTY_ENEMY:
-                                    if (dstActor.getParty()!=Values.PARTY_ENEMY)//互为敌对阵营,不能通过该节点
+                                    if (dstActor.getParty() != Values.PARTY_ENEMY)//互为敌对阵营,不能通过该节点
                                         continue;
                                     break;
                             }
@@ -179,8 +248,8 @@ public class ActorMove {
         return movePath;
     }
 
-    public boolean canMoveTo(int[] xy){
-        return moveRange.indexOf(xy)!=-1;
+    public boolean canMoveTo(int[] xy) {
+        return moveRange.indexOf(xy) != -1;
     }
 
     //设置移动路径
@@ -199,7 +268,7 @@ public class ActorMove {
     public class Node implements Comparable<Node> {
         private int[] xy;//当前格子的位置
         private int moveCost;//当前格子的移动力消耗
-
+        private int distance;//与可移动范围的距离
         private int f;//g和h的和
         private int g;//从起始格子到当前格子需要的移动力
         private int h;//从当前格子到终点格子的预估移动力
@@ -209,6 +278,7 @@ public class ActorMove {
             this.xy = new int[2];
             this.xy[0] = xy[0];
             this.xy[1] = xy[1];
+            this.distance = 0;
             this.moveCost = Terrain.MOVE_COST[Careers.getCareer(srcActor.getCareerKey()).getType()][map.getTerrain(this.xy)];
             this.parent = null;
         }
@@ -298,10 +368,10 @@ public class ActorMove {
             return true;
         }
 
-        public int indexOf(int[] xyTile){
+        public int indexOf(int[] xyTile) {
             for (int i = size() - 1; i >= 0; i--) {
                 Node tmp = get(i);
-                if (tmp.xy[0]==xyTile[0] && tmp.xy[1]==xyTile[1]) {
+                if (tmp.xy[0] == xyTile[0] && tmp.xy[1] == xyTile[1]) {
                     return i;
                 }
             }

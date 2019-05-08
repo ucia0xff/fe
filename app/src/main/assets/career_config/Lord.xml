@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<career>
+    <!--基本信息-->
+    <key>Lord</key>
+    <name>领主</name>
+    <info>治理领地的君主后裔 还很年轻，未成大器</info>
+    <face>Unknown.png</face><!--头像-->
+
+    <!--兵种类型-->
+    <type>1</type>
+
+    <!--移动速度-->
+    <move-spd>1</move-spd>
+
+    <!--初始能力-->
+    <init-lv>1</init-lv>
+    <init-mhp>16</init-mhp>
+    <init-str>4</init-str>
+    <init-mag>0</init-mag>
+    <init-skl>8</init-skl>
+    <init-spd>9</init-spd>
+    <init-luc>0</init-luc>
+    <init-def>3</init-def>
+    <init-res>1</init-res>
+    <init-mov>5</init-mov>
+    <init-con>5</init-con>
+    <init-mnt>0</init-mnt><!--坐骑，0是没有-->
+    <init-aff>0</init-aff><!--属性，0是没有-->
+
+    <!--能力上限-->
+    <max-lv>20</max-lv>
+    <max-mhp>60</max-mhp>
+    <max-str>20</max-str>
+    <max-mag>20</max-mag>
+    <max-skl>20</max-skl>
+    <max-spd>20</max-spd>
+    <max-luc>20</max-luc>
+    <max-def>20</max-def>
+    <max-res>20</max-res>
+    <max-mov>20</max-mov>
+    <max-con>20</max-con>
+
+    <!--职业通用成长率-->
+    <grow-mhp>90</grow-mhp><!--hp成长-->
+    <grow-str>45</grow-str><!--力量成长-->
+    <grow-mag>20</grow-mag><!--魔力成长-->
+    <grow-skl>40</grow-skl><!--技术成长-->
+    <grow-spd>45</grow-spd><!--速度成长-->
+    <grow-luc>40</grow-luc><!--幸运成长-->
+    <grow-def>15</grow-def><!--守备成长-->
+    <grow-res>20</grow-res><!--魔防成长-->
+
+    <!--初始武器熟练度-->
+    <init-swd>0</init-swd>
+    <init-lan>0</init-lan>
+    <init-axe>0</init-axe>
+    <init-bow>0</init-bow>
+    <init-stf>0</init-stf>
+    <init-anm>0</init-anm>
+    <init-lgt>0</init-lgt>
+    <init-drk>0</init-drk>
+
+    <!--武器熟练度上限-->
+    <max-swd>0</max-swd>
+    <max-lan>0</max-lan>
+    <max-axe>0</max-axe>
+    <max-bow>0</max-bow>
+    <max-stf>0</max-stf>
+    <max-anm>0</max-anm>
+    <max-lgt>0</max-lgt>
+    <max-drk>0</max-drk>
+
+</career>

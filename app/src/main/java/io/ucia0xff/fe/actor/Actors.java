@@ -8,11 +8,11 @@ public class Actors {
     public static Map<String, Actor> actors = new HashMap<String, Actor>();
 
     static {
-        actor = new Actor("Natasha");
+        actor = new Actor("Eirika");
         actors.put(actor.getActorKey(), actor);
         actor = new Actor("MautheDog");
         actors.put(actor.getActorKey(), actor);
-        actor = new Actor("Walter");
+        actor = new Actor("Valter");
         actors.put(actor.getActorKey(), actor);
     }
 

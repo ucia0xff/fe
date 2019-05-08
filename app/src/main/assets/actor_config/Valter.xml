@@ -2,14 +2,14 @@
 <actor>
     <!--配置信息-->
     <party>2</party><!--阵营，0我军，1友军，2敌军，3未知-->
-    <xy>10,6</xy><!--坐标，以坐上角格子为0,0-->
+    <xy>12,15</xy><!--坐标，以坐上角格子为0,0-->
 
     <!--角色信息-->
-    <actor-key>Walter</actor-key><!--角色标识-->
+    <actor-key>Valter</actor-key><!--角色标识-->
     <career-key>WyvernKnight</career-key><!--职业标识-->
     <name>沃尔塔</name><!--角色名-->
     <info>古拉德帝国将军之一，拥有 【月长石】之称号的残忍的将军</info><!--角色说明-->
-    <face>Walter.png</face><!--角色头像，不写则使用职业头像-->
+    <face>Unknown.png</face><!--角色头像，不写则使用职业头像-->
 
     <!--角色能力修正（相对于职业初始能力，负数为降低，正数为提高，不写和0为不变）-->
     <adj-lv>12</adj-lv><!--等级-->

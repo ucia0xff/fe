@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<item>
+    <key>FieryFang</key>
+    <type>1</type>
+    <name>灼热之牙</name>
+    <info>锐利之牙</info>
+    <icon>FieryFang.png</icon>
+    <uses>30</uses>
+    <can-use>0</can-use>
+    <can-equip>1</can-equip>
+    <dmg-type>0</dmg-type>
+
+    <lv>0</lv>
+    <atk>5</atk>
+    <hit>90</hit>
+    <wgt>5</wgt>
+    <crt>0</crt>
+    <range>1,1</range>
+    <exp>1</exp>
+</item>

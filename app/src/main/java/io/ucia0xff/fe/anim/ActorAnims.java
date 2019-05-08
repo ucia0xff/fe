@@ -149,5 +149,51 @@ public class ActorAnims {
             actorAnim.setDurations(100);
             actorAnims.put("WyvernKnightEnemyUp", actorAnim);
         }
+
+        {//领主
+            //领主静态图标
+            bitmap = Anim.readBitMap("actor_anim/LordPlayerStatic.png");
+            bitmaps = Anim.splitBitmap(bitmap, 1, 3, 16);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(400);
+            actorAnims.put("LordPlayerStatic", actorAnim);
+
+            //领主待机图标
+            bitmaps = Anim.toGreyBitmap(bitmaps);//静态图标帧转换成灰度得到待机图标帧
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(400);
+            actorAnims.put("LordPlayerStandby", actorAnim);
+
+            //领主动态图标
+            bitmap = Anim.readBitMap("actor_anim/LordPlayerDynamic.png");
+            bitmaps = Anim.splitBitmap(bitmap, 13, 3, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(200);
+            actorAnims.put("LordPlayerDynamic", actorAnim);
+
+            //领主下移动画
+            bitmaps = Anim.splitBitmap(bitmap, 5, 4, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("LordPlayerDown", actorAnim);
+
+            //领主左移动画
+            bitmaps = Anim.splitBitmap(bitmap, 1, 4, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("LordPlayerLeft", actorAnim);
+
+            //领主右移动画
+            bitmaps = Anim.toMirrorBitmap(bitmaps);//左移动画帧左右翻转得到右移动画帧
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("LordPlayerRight", actorAnim);
+
+            //领主上移动画
+            bitmaps = Anim.splitBitmap(bitmap, 9, 4, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("LordPlayerUp", actorAnim);
+        }
     }
 }
