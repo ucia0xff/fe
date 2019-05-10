@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <item>
-    <key>IronLance</key>
-    <type>1</type>
+    <key>IronLance</key><!--物品标识-->
+    <type>1</type><!--物品类型，0剑，1枪，2斧，3弓，4杖，5理，6光，7暗，8其他，9道具-->
     <name>铁枪</name>
     <info>骑士们得心应手的枪</info>
     <icon>IronLance.png</icon>
-    <uses>45</uses>
-    <can-use>0</can-use>
-    <can-equip>1</can-equip>
-    <dmg-type>0</dmg-type>
+    <uses>45</uses><!--耐久度-->
+    <can-use>0</can-use><!--是否可使用-->
+    <can-equip>1</can-equip><!--是否可装备-->
+    <dmg-type>0</dmg-type><!--伤害类型，0物理，1魔法-->
 
-    <lv>1</lv>
-    <atk>7</atk>
-    <hit>80</hit>
-    <wgt>8</wgt>
-    <crt>0</crt>
-    <range>1,1</range>
-    <exp>1</exp>
+    <lv>1</lv><!--武器等级-->
+    <atk>7</atk><!--攻击-->
+    <hit>80</hit><!--命中-->
+    <wgt>8</wgt><!--重量-->
+    <crt>0</crt><!--必杀-->
+    <range>1,1</range><!--射程-->
+    <exp>1</exp><!--使用获得熟练度-->
 </item>

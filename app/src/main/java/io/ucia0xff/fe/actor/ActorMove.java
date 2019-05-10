@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -23,8 +24,8 @@ public class ActorMove {
     private Node nowNode;
     private Node newNode;
     private NodeList moveRange;//可移动范围
-    private NodeList attackRange;//可攻击范围
-    private NodeList staffRange;//杖使用范围
+    private NodeList allAttackRange;//移动前的攻击范围
+    private NodeList attackRange;//移动后的攻击范围
     private NodeList movePath;//移动路径
     private Bitmap block;
     private Bitmap blockMove;//可移动范围的色块
@@ -43,11 +44,13 @@ public class ActorMove {
         this.map = map;
         moveRange = new NodeList();
         movePath = new NodeList();
+        allAttackRange = new NodeList();
         attackRange = new NodeList();
-        staffRange = new NodeList();
+
         blockMove = Anim.readBitMap(R.drawable.block_move);
         blockStaff = Anim.readBitMap(R.drawable.block_staff);
         blockAttack = Anim.readBitMap(R.drawable.block_attack);
+
         src = new Rect(0, 0, blockMove.getWidth(), blockMove.getHeight());
         dst = new Rect(0, 0, Values.MAP_TILE_WIDTH, Values.MAP_TILE_HEIGHT);
     }
@@ -70,12 +73,24 @@ public class ActorMove {
     }
 
     //绘制攻击范围
+    public void drawAllAttackRange(Canvas canvas, Paint paint, int[] xyOffset) {
+        if (canvas == null) return;
+        int[] xyTile;
+        for (int i = 0; i < allAttackRange.size(); i++) {
+            if (moveRange.indexOf(allAttackRange.get(i)) != -1)
+                continue;
+            xyTile = allAttackRange.get(i).getXy();
+            dst.offsetTo(xyTile[0] * Values.MAP_TILE_WIDTH + xyOffset[0],
+                    xyTile[1] * Values.MAP_TILE_HEIGHT + xyOffset[1]);
+            drawBlock(canvas, paint, 1);
+        }
+    }
+
+    //绘制在一个坐标的攻击范围
     public void drawAttackRange(Canvas canvas, Paint paint, int[] xyOffset) {
         if (canvas == null) return;
         int[] xyTile;
         for (int i = 0; i < attackRange.size(); i++) {
-            if (moveRange.indexOf(attackRange.get(i)) != -1)
-                continue;
             xyTile = attackRange.get(i).getXy();
             dst.offsetTo(xyTile[0] * Values.MAP_TILE_WIDTH + xyOffset[0],
                     xyTile[1] * Values.MAP_TILE_HEIGHT + xyOffset[1]);
@@ -116,7 +131,7 @@ public class ActorMove {
         startNode = new Node(srcActor.getXyInMapTile());
         startNode.setMoveCost(0);
         this.setMoveRange();
-        this.setAtkRange();
+        this.setAllAttackRange();
     }
 
     public Actor getDstActor() {
@@ -151,23 +166,21 @@ public class ActorMove {
         this.newNode = newNode;
     }
 
-    //设置可攻击范围
-    public void setAtkRange() {
-        attackRange.clear();
-        Item weapon = srcActor.getEquipedWeapon();
+    //获取角色在原地的攻击范围
+    public NodeList getAttackRange(Actor actor) {
+        NodeList maxAttackRange = new NodeList();
+        NodeList attackRange = new NodeList();
+        Item weapon = actor.getEquipedWeapon();
         if (weapon == null)
-            return;
+            return attackRange;
         int[] range = weapon.getRange();
-        if (moveRange.isEmpty())
-            setMoveRange();
-        attackRange.addAll(moveRange);
+        int[] srcXY = actor.getXyInMapTile();
         int[] nowXY;
         int[] newXY = new int[2];
-        int index;
-        for (int i = range[0]; i <= range[1]; i++) {
-            for (int j = 0; j < attackRange.size(); j++) {//遍历可攻击范围里的每个节点
-                nowNode = attackRange.get(j);
-                nowXY = nowNode.getXy();
+        maxAttackRange.add(new Node(srcXY));
+        for (int i = 1; i <= range[1]; i++) {//一圈一圈往外遍历，得到最大攻击范围
+            for (int j = 0; j < maxAttackRange.size(); j++) {
+                nowXY = maxAttackRange.get(j).getXy();
                 for (int k = 0; k < DIRECTION.length; k++) {//遍历该节点的4个方向得到新节点的坐标
                     newXY[0] = nowXY[0] + DIRECTION[k][0];
                     newXY[1] = nowXY[1] + DIRECTION[k][1];
@@ -175,27 +188,81 @@ public class ActorMove {
                             newXY[0] >= map.getMapWidthTileCount() ||
                             newXY[1] >= map.getMapHeightTileCount())//新坐标超出地图边界则不处理
                         continue;
-                    else {
+                    else if (maxAttackRange.indexOf(newXY) != -1)//新坐标已在列表中则不处理
+                        continue;
+                    else if ((Math.abs(newXY[0] - srcXY[0]) + Math.abs(newXY[1] - srcXY[1])) == i) {//将新坐标加入列表
                         newNode = new Node(newXY);
-                        newNode.distance = nowNode.distance + 1;
-                        index = attackRange.indexOf(newXY);
-                        if (index != -1) {//该格子已在攻击范围列表中
-                            if (newNode.distance <= attackRange.get(index).distance) {//
-                                attackRange.remove(index);
-                                attackRange.add(newNode);
-                            }
-                        } else if (newNode.distance<=i){
-                            attackRange.add(newNode);
-                        }
+                        newNode.distance = i;//新坐标与起始位置的距离
+                        maxAttackRange.add(newNode);
                     }
                 }
             }
         }
-/*        for (Node node : moveRange) {
-            index = attackRange.indexOf(node);
-            if (index != -1)
-                attackRange.remove(index);
-        }*/
+        for (Node node : maxAttackRange) {
+            if (range[0] <= node.distance && node.distance <= range[1]) {
+                attackRange.add(node);
+                Log.d("AttackRange", node.getXy()[0]+","+node.getXy()[1]+":"+node.distance);
+            }
+        }
+        return attackRange;
+    }
+
+
+    //设置在一个坐标的攻击范围
+    public void setAttackRange(int[] xy) {
+        NodeList maxAttackRange = new NodeList();
+        attackRange.clear();
+        Item weapon = srcActor.getEquipedWeapon();
+        if (weapon == null)
+            return;
+        int[] range = weapon.getRange();
+        maxAttackRange.add(new Node(xy));
+        int[] nowXY;
+        int[] newXY = new int[2];
+        for (int i = 1; i <= range[1]; i++) {//一圈一圈往外遍历，得到最大攻击范围
+            for (int j = 0; j < maxAttackRange.size(); j++) {
+                nowXY = maxAttackRange.get(j).getXy();
+                for (int k = 0; k < DIRECTION.length; k++) {//遍历该节点的4个方向得到新节点的坐标
+                    newXY[0] = nowXY[0] + DIRECTION[k][0];
+                    newXY[1] = nowXY[1] + DIRECTION[k][1];
+                    if (newXY[0] < 0 || newXY[1] < 0 ||
+                            newXY[0] >= map.getMapWidthTileCount() ||
+                            newXY[1] >= map.getMapHeightTileCount())//新坐标超出地图边界则不处理
+                        continue;
+                    else if (maxAttackRange.indexOf(newXY) != -1)//新坐标已在列表中则不处理
+                        continue;
+                    else if ((Math.abs(newXY[0] - xy[0]) + Math.abs(newXY[1] - xy[1])) == i) {//将新坐标加入列表
+                        newNode = new Node(newXY);
+                        newNode.distance = i;//新坐标与起始位置的距离
+                        maxAttackRange.add(newNode);
+                    }
+                }
+            }
+        }
+        for (Node node : maxAttackRange) {
+            if (range[0] <= node.distance && node.distance <= range[1])
+                attackRange.add(node);
+        }
+    }
+
+    //设置攻击范围
+    public void setAllAttackRange() {
+        allAttackRange.clear();
+        Item weapon = srcActor.getEquipedWeapon();
+        if (weapon == null)
+            return;
+        int[] range = weapon.getRange();
+        if (moveRange.isEmpty())
+            setMoveRange();
+        int[] nowXY;
+        int[] newXY = new int[2];
+        for (Node move : moveRange) {
+            setAttackRange(move.getXy());
+            for (Node node : attackRange){
+                if (allAttackRange.indexOf(node) == -1)
+                    allAttackRange.add(node);
+            }
+        }
     }
 
 
@@ -222,6 +289,7 @@ public class ActorMove {
                 else {
                     newNode = new Node(newXY);
                     newNode.setParent(nowNode);
+                    newNode.setMoveCost(Terrain.MOVE_COST[Careers.getCareer(srcActor.getCareerKey()).getType()][map.getTerrain(newXY)]);//新节点原始的移动力消耗
                     newNode.setMoveCost(newNode.getMoveCost() + nowNode.getMoveCost());//从起点移动到新节点的移动力消耗
                     if (newNode.getMoveCost() <= srcActor.getMov()) {//如果该节点在距离上可达
                         if ((dstActor = Actors.getActor(newXY)) != null) {//则判断该节点上有没有角色存在
@@ -268,7 +336,7 @@ public class ActorMove {
     public class Node implements Comparable<Node> {
         private int[] xy;//当前格子的位置
         private int moveCost;//当前格子的移动力消耗
-        private int distance;//与可移动范围的距离
+        private int distance;//与起始坐标的距离
         private int f;//g和h的和
         private int g;//从起始格子到当前格子需要的移动力
         private int h;//从当前格子到终点格子的预估移动力
@@ -279,7 +347,7 @@ public class ActorMove {
             this.xy[0] = xy[0];
             this.xy[1] = xy[1];
             this.distance = 0;
-            this.moveCost = Terrain.MOVE_COST[Careers.getCareer(srcActor.getCareerKey()).getType()][map.getTerrain(this.xy)];
+            this.moveCost = 0;
             this.parent = null;
         }
 

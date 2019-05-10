@@ -2,7 +2,7 @@
 <actor>
     <!--配置信息-->
     <party>2</party><!--阵营，0我军，1友军，2敌军，3未知-->
-    <xy>12,15</xy><!--坐标，以坐上角格子为0,0-->
+    <xy>10,14</xy><!--坐标，以坐上角格子为0,0-->
 
     <!--角色信息-->
     <actor-key>Valter</actor-key><!--角色标识-->
@@ -46,5 +46,5 @@
     <exp-lgt></exp-lgt>
     <exp-drk></exp-drk>
 
-    <items>IronLance,SteelLance,SilverLance,Vidofnir,IronSword</items>
+    <items>Javalin,SteelLance,SilverLance,Vidofnir</items>
 </actor>

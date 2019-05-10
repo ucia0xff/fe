@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <item>
-    <key>IronSword</key>
-    <type>0</type>
+    <key>IronSword</key><!--物品标识-->
+    <type>0</type><!--物品类型，0剑，1枪，2斧，3弓，4杖，5理，6光，7暗，8其他，9道具-->
     <name>铁剑</name>
     <info>使用顺手的剑</info>
     <icon>IronSword.png</icon>
     <uses>46</uses>
-    <can-use>0</can-use>
-    <can-equip>1</can-equip>
-    <dmg-type>0</dmg-type>
+    <can-use>0</can-use><!--是否可使用-->
+    <can-equip>1</can-equip><!--是否可装备-->
+    <dmg-type>0</dmg-type><!--伤害类型，0物理，1魔法-->
 
     <lv>1</lv>
-    <atk>5</atk>
-    <hit>90</hit>
-    <wgt>5</wgt>
-    <crt>0</crt>
-    <range>1,1</range>
-    <exp>1</exp>
+    <atk>5</atk><!--攻击-->
+    <hit>90</hit><!--命中-->
+    <wgt>5</wgt><!--重量-->
+    <crt>0</crt><!--必杀-->
+    <range>1,1</range><!--射程-->
+    <exp>1</exp><!--使用获得熟练度-->
 </item>

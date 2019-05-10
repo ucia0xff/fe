@@ -45,6 +45,24 @@ public class Paints {
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
         paints.put("game_options", paint);
 
+        //角色行动菜单项-可用
+        paint = new Paint();
+        paint.setTextSize(80);
+        paint.setColor(Color.WHITE);
+        paint.setTypeface(Typeface.SANS_SERIF);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
+        paints.put("actor_action_enable", paint);
+
+        //角色行动菜单项-禁用
+        paint = new Paint();
+        paint.setTextSize(80);
+        paint.setColor(Color.GRAY);
+        paint.setTypeface(Typeface.SANS_SERIF);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
+        paints.put("actor_action_disable", paint);
+
         //角色信息-角色名
         paint = new Paint();
         paint.setTextSize(60);

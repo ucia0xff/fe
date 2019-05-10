@@ -2,7 +2,7 @@
 <actor>
     <!--配置信息-->
     <party>0</party><!--阵营，0我军，1友军，2敌军，3未知-->
-    <xy>12,14</xy><!--坐标，以坐上角格子为0,0-->
+    <xy>10,13</xy><!--坐标，以坐上角格子为0,0-->
 
     <!--角色信息-->
     <actor-key>Eirika</actor-key><!--角色标识-->
@@ -37,7 +37,7 @@
     <grow-res>60</grow-res>
 
     <!--武器熟练度，不写则使用职业武器熟练度-->
-    <exp-swd>1</exp-swd>
+    <exp-swd>181</exp-swd>
     <exp-lan></exp-lan>
     <exp-axe></exp-axe>
     <exp-bow></exp-bow>
@@ -46,5 +46,5 @@
     <exp-lgt></exp-lgt>
     <exp-drk></exp-drk>
 
-    <items>IronSword</items>
+    <items>LightBrand,IronSword</items>
 </actor>

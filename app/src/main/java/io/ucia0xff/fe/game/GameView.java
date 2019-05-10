@@ -13,8 +13,6 @@ import android.view.View;
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.actor.*;
 import io.ucia0xff.fe.anim.*;
-import io.ucia0xff.fe.item.Item;
-import io.ucia0xff.fe.item.Items;
 import io.ucia0xff.fe.map.*;
 
 public class GameView extends SurfaceView
@@ -34,6 +32,7 @@ public class GameView extends SurfaceView
     public MapInfo mapInfo;
     public ActorMove move;
     public ActorInfo actorInfo;
+    public ActorAction actorAction;
 //    GameOptions gameOptions;
 
     //画笔
@@ -86,6 +85,7 @@ public class GameView extends SurfaceView
         move = new ActorMove(map);
         setParties(actors);
         actorInfo = new ActorInfo();
+        actorAction = new ActorAction(map);
 //        gameOptions = new GameOptions(context);
 
 
@@ -93,7 +93,7 @@ public class GameView extends SurfaceView
         surfaceHolder.addCallback(this);
         setClickable(true);
         setFocusable(true);
-        gestureDetector = new GestureDetector(this);
+        gestureDetector = new GestureDetector(Values.CONTEXT, this);
         setOnTouchListener(this);
     }
 
@@ -109,7 +109,7 @@ public class GameView extends SurfaceView
             case Values.CASE_BEFORE_MOVE:
                 map.drawMap(canvas, paint, xyOffset);
                 move.drawMoveRange(canvas, paint, xyOffset);
-                move.drawAttackRange(canvas, paint, xyOffset);
+                move.drawAllAttackRange(canvas, paint, xyOffset);
                 DrawActors(canvas, paint, xyOffset);
                 DrawCursor(canvas, paint, xyOffset);
                 break;
@@ -117,6 +117,8 @@ public class GameView extends SurfaceView
                 map.drawMap(canvas, paint, xyOffset);
                 if (!(selectedActor.move(move.getMovePath()))) {
                     GAME_CASE = Values.CASE_AFTER_MOVE;
+                    move.setAttackRange(selectedActor.getXyInMapTile());
+                    actorAction.setActor(selectedActor);
                     Log.d("GAME_CASE", "AFTER_MOVE");
                 }
                 DrawActors(canvas, paint, xyOffset);
@@ -124,8 +126,8 @@ public class GameView extends SurfaceView
             case Values.CASE_AFTER_MOVE:
                 map.drawMap(canvas, paint, xyOffset);
                 DrawActors(canvas, paint, xyOffset);
-//                DisplayActorOptions(selectedActor);
-                GAME_CASE = Values.CASE_NORMAL;
+                move.drawAttackRange(canvas, paint, xyOffset);
+                actorAction.show(canvas, paint);
                 break;
             case Values.CASE_BEFORE_ACT:
                 break;
@@ -259,7 +261,6 @@ public class GameView extends SurfaceView
                 break;
             //移动前
             case Values.CASE_BEFORE_MOVE:
-                ActorMove.NodeList moveRange = move.getMoveRange();
                 if (selectedActor.getParty() == Values.PARTY_PLAYER &&
                         move.canMoveTo(xyInMapTile)) {//进入移动前状态的是我方角色，并且这次单击的坐标在可移动范围内
                     targetActor = Actors.getActor(xyInMapTile);
@@ -287,7 +288,13 @@ public class GameView extends SurfaceView
             //显示角色信息
             case Values.CASE_SHOW_ACTOR_INFO:
                 break;
+            //移动中
             case Values.CASE_MOVING:
+                break;
+            //移动后
+            case Values.CASE_AFTER_MOVE:
+                GAME_CASE = Values.CASE_NORMAL;
+                Log.d("GAME_CASE", "NORMAL");
                 break;
             case Values.CASE_SHOW_GAME_OPTIONS:
                 /*if (gameOptions.CheckOption(xInScreen, yInScreen, isLeft) > GameOptions.OPTIONS.length){

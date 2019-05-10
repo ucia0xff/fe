@@ -5,16 +5,16 @@
     <name>钢枪</name>
     <info>有些重，威力比较大的枪</info>
     <icon>SteelLance.png</icon>
-    <uses>30</uses>
-    <can-use>0</can-use>
-    <can-equip>1</can-equip>
-    <dmg-type>0</dmg-type>
+    <uses>30</uses><!--耐久度-->
+    <can-use>0</can-use><!--是否可使用-->
+    <can-equip>1</can-equip><!--是否可装备-->
+    <dmg-type>0</dmg-type><!--伤害类型，0物理，1魔法-->
 
-    <lv>31</lv>
-    <atk>10</atk>
-    <hit>70</hit>
-    <wgt>13</wgt>
-    <crt>0</crt>
-    <range>1,1</range>
-    <exp>2</exp>
+    <lv>31</lv><!--武器等级-->
+    <atk>10</atk><!--攻击-->
+    <hit>70</hit><!--命中-->
+    <wgt>13</wgt><!--重量-->
+    <crt>0</crt><!--必杀-->
+    <range>1,1</range><!--射程-->
+    <exp>2</exp><!--使用获得熟练度-->
 </item>
