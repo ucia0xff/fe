@@ -128,8 +128,6 @@ public class ActorMove {
 
     public void setSrcActor(Actor srcActor) {
         this.srcActor = srcActor;
-        startNode = new Node(srcActor.getXyInMapTile());
-        startNode.setMoveCost(0);
         this.setMoveRange();
         this.setAllAttackRange();
     }
@@ -201,7 +199,7 @@ public class ActorMove {
         for (Node node : maxAttackRange) {
             if (range[0] <= node.distance && node.distance <= range[1]) {
                 attackRange.add(node);
-                Log.d("AttackRange", node.getXy()[0]+","+node.getXy()[1]+":"+node.distance);
+//                Log.d("AttackRange", node.getXy()[0]+","+node.getXy()[1]+":"+node.distance);
             }
         }
         return attackRange;
@@ -273,6 +271,8 @@ public class ActorMove {
     //设置可移动范围
     public void setMoveRange() {
         moveRange.clear();
+        startNode = new Node(srcActor.getXyInMapTile());
+        startNode.setMoveCost(0);
         moveRange.add(startNode);
         int[] nowXY;
         int[] newXY = new int[2];
@@ -323,13 +323,16 @@ public class ActorMove {
     //设置移动路径
     public void setMovePath(int[] xyTile) {
         movePath.clear();
-        int index = moveRange.indexOf(new Node(xyTile));
+        int index = moveRange.indexOf(xyTile);
         nowNode = moveRange.get(index);
         while (nowNode != startNode) {
             movePath.add(0, nowNode);
             nowNode = nowNode.getParent();
         }
         movePath.add(0, startNode);
+/*        for (Node node : movePath) {
+            Log.d("MOVE_PATH", node.getXy()[0] + "，" + node.getXy()[1]);
+        }*/
     }
 
     //内部类——节点

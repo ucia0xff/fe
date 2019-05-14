@@ -356,7 +356,10 @@ public class Actor {
     }
 
     public void setXyInMapTile(int[] xyInMapTile) {
-        this.xyInMapTile = xyInMapTile;
+        this.xyInMapTile[0] = xyInMapTile[0];
+        this.xyInMapTile[1] = xyInMapTile[1];
+        this.xyInMapPx[0] = xyInMapTile[0] * Values.MAP_TILE_WIDTH;
+        this.xyInMapPx[1] = xyInMapTile[1] * Values.MAP_TILE_WIDTH;
     }
 
     public int[] getXyInScrPx() {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <actor>
     <!--配置信息-->
-    <party>0</party><!--阵营-->
-    <xy>9,6</xy><!--坐标-->
+    <party>2</party><!--阵营，0我军，1友军，2敌军，3未知-->
+    <xy>10,12</xy><!--坐标，以坐上角格子为0,0-->
 
     <!--角色信息-->
     <actor-key>MautheDog</actor-key><!--角色标识-->

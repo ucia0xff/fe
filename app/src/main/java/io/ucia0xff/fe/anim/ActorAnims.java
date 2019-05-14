@@ -104,6 +104,52 @@ public class ActorAnims {
             actorAnims.put("MautheDogPlayerUp", actorAnim);
         }
 
+        {//魔刹犬
+            //魔刹犬静态图标
+            bitmap = Anim.readBitMap("actor_anim/MautheDogEnemyStatic.png");
+            bitmaps = Anim.splitBitmap(bitmap, 1, 3, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(400);
+            actorAnims.put("MautheDogEnemyStatic", actorAnim);
+
+            //魔刹犬待机图标
+            bitmaps = Anim.toGreyBitmap(bitmaps);//静态图标帧转换成灰度得到待机图标帧
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(400);
+            actorAnims.put("MautheDogEnemyStandby", actorAnim);
+
+            //魔刹犬动态图标
+            bitmap = Anim.readBitMap("actor_anim/MautheDogEnemyDynamic.png");
+            bitmaps = Anim.splitBitmap(bitmap, 13, 3, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(200);
+            actorAnims.put("MautheDogEnemyDynamic", actorAnim);
+
+            //魔刹犬下移动画
+            bitmaps = Anim.splitBitmap(bitmap, 5, 4, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("MautheDogEnemyDown", actorAnim);
+
+            //魔刹犬左移动画
+            bitmaps = Anim.splitBitmap(bitmap, 1, 4, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("MautheDogEnemyLeft", actorAnim);
+
+            //魔刹犬右移动画
+            bitmaps = Anim.toMirrorBitmap(bitmaps);//左移动画帧左右翻转得到右移动画帧
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("MautheDogEnemyRight", actorAnim);
+
+            //魔刹犬上移动画
+            bitmaps = Anim.splitBitmap(bitmap, 9, 4, 32);
+            actorAnim = new ActorAnim(bitmaps, true);
+            actorAnim.setDurations(100);
+            actorAnims.put("MautheDogEnemyUp", actorAnim);
+        }
+
         {//翼龙骑士
             //翼龙骑士静态图标
             bitmap = Anim.readBitMap("actor_anim/WyvernKnightEnemyStatic.png");

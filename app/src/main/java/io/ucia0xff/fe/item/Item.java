@@ -83,7 +83,7 @@ public class Item {
                         range = new int[2];
                         range[0] = Integer.parseInt(str[0]);
                         range[1] = Integer.parseInt(str[1]);
-                        Log.d("ITEM_INFO", "射程" + range[0] + "~" + range[1]);
+//                        Log.d("ITEM_INFO", "射程" + range[0] + "~" + range[1]);
                     } else if ("exp".equals(parser.getName()) && canEquip){
                         exp = Integer.parseInt(parser.nextText());
                     }
