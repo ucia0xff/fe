@@ -18,7 +18,7 @@ public class Actors {
 
     public static Actor getActor(int[] xyTile) {
         for (Actor actor : actors.values()) {
-            if (actor.getXyInMapTile()[0] == xyTile[0] && actor.getXyInMapTile()[1] == xyTile[1]) {
+            if ((actor.getXyInMapTile()[0] == xyTile[0]) && (actor.getXyInMapTile()[1] == xyTile[1])) {
                 return actor;
             }
         }

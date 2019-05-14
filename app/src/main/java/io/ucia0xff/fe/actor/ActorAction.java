@@ -37,8 +37,8 @@ public class ActorAction {
     //背景图片
     private Bitmap bg;
 
-    public ActorAction(Map map) {
-        move = new ActorMove(map);
+    public ActorAction(ActorMove move) {
+        this.move = move;
         bg = Anim.readBitMap(R.drawable.bg_actor_action);
         targetList = new ArrayList<>();
     }
@@ -89,15 +89,15 @@ public class ActorAction {
         }
         switch (actionIndex) {
             case ACTION_ATTACK:
-                if (!ACTIONS_ENABLE[ACTION_ATTACK])//攻击选项不可以
+                if (!ACTIONS_ENABLE[ACTION_ATTACK])//攻击选项不可用
                     return false;
                 break;
             case ACTION_ITEMS:
-                if (!ACTIONS_ENABLE[ACTION_ITEMS])//物品选项不可以
+                if (!ACTIONS_ENABLE[ACTION_ITEMS])//物品选项不可用
                     return false;
                 break;
             case ACTION_STANDBY:
-                if (!ACTIONS_ENABLE[ACTION_STANDBY])//待机选项不可以
+                if (!ACTIONS_ENABLE[ACTION_STANDBY])//待机选项不可用
                     return false;
                 break;
             default:
@@ -108,13 +108,9 @@ public class ActorAction {
 
     public Actor getTargetActor(int[] xyTile) {
         setTargetList();
-        for (Actor target : targetList) {
-            Log.d("TargetActorGetAll", target.getXyInMapTile()[0] + "，" + target.getXyInMapTile()[1] + "：" + target.getName());
-        }
         for (int i=0;i<targetList.size();i++) {
             Actor target = targetList.get(i);
             if ((target.getXyInMapTile()[0]==xyTile[0]) && (target.getXyInMapTile()[1] == xyTile[1])) {
-                Log.d("TargetActorGet", target.getXyInMapTile()[0] + "，" + target.getXyInMapTile()[1] + "：" + target.getName());
                 return target;
             }
         }
@@ -155,6 +151,50 @@ public class ActorAction {
         for (Actor actor : targetList) {
             Log.d("TargetList", actor.getXyInMapTile()[0] + "，" + actor.getXyInMapTile()[1] + "：" + actor.getName());
         }
+    }
+
+
+    //显示战斗信息
+    public void showBattleInfo(Canvas canvas, Paint paint, Actor actor1, Actor actor2) {
+        if (actor1==null || actor2==null) return;
+        paint = Paints.paints.get("battle_info_center");
+        int startY = (int)(paint.getFontMetrics().bottom - paint.getFontMetrics().top);
+        int rowStep = startY;
+        int margin = (int) paint.measureText("对战");
+        canvas.drawText("|对战|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
+        canvas.drawText(actor1.getName(), Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
+        canvas.drawText(actor2.getName(), Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+
+        int value1;
+        int value2;
+        if (actor1.getEquipedWeapon().getDmgType()==Values.DAMAGE_TYPE_PHYSICS)
+            value1 = actor1.getAtk() - actor2.getDef();
+        else
+            value1 = actor1.getMat() - actor2.getRes();
+        value1 = value1<0?0:value1;
+        if (actor2.getEquipedWeapon().getDmgType()==Values.DAMAGE_TYPE_PHYSICS)
+            value2 = actor2.getAtk() - actor1.getDef();
+        else
+            value2 = actor2.getMat() - actor1.getRes();
+        value2 = value2<0?0:value2;
+        startY+=rowStep;
+        canvas.drawText("|伤害|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
+        canvas.drawText(""+value1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
+        canvas.drawText(""+value2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+
+        value1=actor1.getHit() - actor2.getAvd();
+        value2=actor2.getHit() - actor1.getAvd();
+        startY+=rowStep;
+        canvas.drawText("|命中|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
+        canvas.drawText(""+value1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
+        canvas.drawText(""+value2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+
+        value1=actor1.getCrt() - actor2.getLuc();
+        value2=actor2.getCrt() - actor1.getLuc();
+        startY+=rowStep;
+        canvas.drawText("|必杀|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
+        canvas.drawText(""+value1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
+        canvas.drawText(""+value2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
     }
 
     public Actor getSrcActor() {

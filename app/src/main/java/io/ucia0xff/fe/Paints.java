@@ -162,6 +162,7 @@ public class Paints {
         paint = new Paint();
         paint.setColor(Color.rgb(80, 72, 64));
         paint.setStrokeWidth(24);
+        paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
         paints.put("ability_bar_border", paint);
 
@@ -169,12 +170,14 @@ public class Paints {
         paint = new Paint();
         paint.setColor(Color.YELLOW);
         paint.setStrokeWidth(12);
+        paint.setStrokeCap(Paint.Cap.ROUND);
         paints.put("ability_bar_yellow", paint);
 
         //角色信息-各项数据条剩余值
         paint = new Paint();
         paint.setColor(Color.rgb(128, 136, 152));
         paint.setStrokeWidth(12);
+        paint.setStrokeCap(Paint.Cap.ROUND);
         paints.put("ability_bar_blank", paint);
 
 
@@ -226,5 +229,29 @@ public class Paints {
         paint.setTextAlign(Paint.Align.RIGHT);
         paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
         paints.put("item_uses_blue", paint);
+
+        //战斗信息-左
+        paint = new Paint();
+        paint.setTextSize(80);
+        paint.setColor(Color.WHITE);
+        paint.setTextAlign(Paint.Align.LEFT);//文字左对齐
+        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
+        paints.put("battle_info_left", paint);
+
+        //战斗信息-右
+        paint = new Paint();
+        paint.setTextSize(80);
+        paint.setColor(Color.WHITE);
+        paint.setTextAlign(Paint.Align.RIGHT);//文字右对齐
+        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
+        paints.put("battle_info_right", paint);
+
+        //战斗信息-中
+        paint = new Paint();
+        paint.setTextSize(80);
+        paint.setColor(Color.WHITE);
+        paint.setTextAlign(Paint.Align.CENTER);//文字左对齐
+        paint.setShadowLayer(5, 5, 5, Color.rgb(56, 48, 40));
+        paints.put("battle_info_center", paint);
     }
 }

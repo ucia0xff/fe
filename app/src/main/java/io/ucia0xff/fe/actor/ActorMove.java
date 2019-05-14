@@ -167,10 +167,10 @@ public class ActorMove {
     //获取角色在原地的攻击范围
     public NodeList getAttackRange(Actor actor) {
         NodeList maxAttackRange = new NodeList();
-        NodeList attackRange = new NodeList();
+        attackRange.clear();
         Item weapon = actor.getEquipedWeapon();
         if (weapon == null)
-            return attackRange;
+            return null;
         int[] range = weapon.getRange();
         int[] srcXY = actor.getXyInMapTile();
         int[] nowXY;

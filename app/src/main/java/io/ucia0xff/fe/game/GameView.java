@@ -12,6 +12,7 @@ import android.view.View;
 
 import java.util.List;
 
+import io.ucia0xff.fe.Paints;
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.actor.*;
 import io.ucia0xff.fe.anim.*;
@@ -89,7 +90,7 @@ public class GameView extends SurfaceView
         move = new ActorMove(map);
         setParties(actors);
         actorInfo = new ActorInfo();
-        actorAction = new ActorAction(map);
+        actorAction = new ActorAction(move);
 //        gameOptions = new GameOptions(context);
 
 
@@ -138,6 +139,7 @@ public class GameView extends SurfaceView
                 DrawActors(canvas, paint, xyOffset);
                 move.drawAttackRange(canvas, paint, xyOffset);
                 DrawCursor(canvas, paint, xyOffset);
+                actorAction.showBattleInfo(canvas, paint, selectedActor, targetActor);
                 break;
             case Values.CASE_ACTING:
                 map.drawMap(canvas, paint, xyOffset);
@@ -285,6 +287,7 @@ public class GameView extends SurfaceView
                         selectedActor = targetActor;
                         selectedActor.getCursor();
                         GAME_CASE = Values.CASE_NORMAL;
+                        Log.d("GAME_CASE", "NORMAL");
                     }
                 } else {//进入移动前状态的不是我方角色，或者这次单击的坐标在可移动范围外
                     selectedActor.lostCursor();
@@ -295,6 +298,7 @@ public class GameView extends SurfaceView
                     GAME_CASE = Values.CASE_NORMAL;
                     Log.d("GAME_CASE", "NORMAL");
                 }
+                targetActor = null;
                 break;
             //移动中
             case Values.CASE_MOVING:
@@ -302,17 +306,11 @@ public class GameView extends SurfaceView
             //移动后阶段，选择行动选项
             case Values.CASE_AFTER_MOVE:
                 if (actorAction.checkAction(xyInScrPx)) {//单击的行动选项可用
-                    targetActor = actorAction.getTargetActor(0);
-                    cursorXY = targetActor.getXyInMapTile();
+                    cursorXY[0] = selectedActor.getXyInMapTile()[0];
+                    cursorXY[1] = selectedActor.getXyInMapTile()[1];
                     GAME_CASE = Values.CASE_BEFORE_ACT;//进入行动前阶段，选择行动目标
                     Log.d("GAME_CASE", "BEFORE_ACT");
-                    Log.d("TARGET", targetActor.getName());
                 } else {//单击的行动选项不可用，或单击选项外的区域，取消移动
-//                    if (selectedActor != null)
-//                        selectedActor.lostCursor();
-//                    selectedActor = Actors.getActor(cursorXY);
-//                    if (selectedActor != null)
-//                        selectedActor.getCursor();
                     selectedActor.setXyInMapTile(cursorLastXY);
                     cursorXY[0] = cursorLastXY[0];
                     cursorXY[1] = cursorLastXY[1];
@@ -327,7 +325,7 @@ public class GameView extends SurfaceView
                     GAME_CASE = Values.CASE_AFTER_MOVE;
                     Log.d("GAME_CASE", "AFTER_MOVE");
                 } else {
-                    Log.d("TARGET", targetActor.getName());
+                    Log.d("Target", targetActor.getName());
                 }
                 break;
             //显示角色信息
@@ -393,10 +391,9 @@ public class GameView extends SurfaceView
             //行动前阶段，确定行动目标
             case Values.CASE_BEFORE_ACT:
                 targetActor = actorAction.getTargetActor(cursorXY);
-                if (targetActor == null) {//双击点无目标，光标不移动，目标不变
-                    cursorXY[0] = cursorLastXY[0];
-                    cursorXY[1] = cursorLastXY[1];
-                    targetActor = actorAction.getTargetActor(cursorXY);
+                if (targetActor == null) {//单击点无目标，取消行动
+                    GAME_CASE = Values.CASE_AFTER_MOVE;
+                    Log.d("GAME_CASE", "AFTER_MOVE");
                 } else {//双击点有目标，开始行动
                     GAME_CASE = Values.CASE_ACTING;
                     Log.d("GAME_CASE", "ACTING");
@@ -404,7 +401,6 @@ public class GameView extends SurfaceView
                 }
                 break;
             default:
-                GAME_CASE = Values.CASE_NORMAL;
                 break;
         }
         return true;
