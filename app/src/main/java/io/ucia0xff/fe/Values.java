@@ -35,6 +35,7 @@ public class Values {
 
     //角色阵营
     public static final String[] PARTIES = {"Player", "Ally", "Enemy", "Unknown"};
+    public static final boolean[] PHASE = {false, false, false, false};
     public static final int PARTY_COUNT = 4;
     public static final int PARTY_PLAYER = 0;//我军
     public static final int PARTY_ALLY = 1;//友军

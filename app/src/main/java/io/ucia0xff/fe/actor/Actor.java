@@ -93,9 +93,9 @@ public class Actor {
     private boolean standby;//是否待机
     private boolean visible;//是否可见
 
-    public Actor(String actorName) {
+    public Actor(String actorConfigFileName) {
         try {
-            InputStream in = Values.CONTEXT.getAssets().open("actor_config/" + actorName + ".xml");
+            InputStream in = Values.CONTEXT.getAssets().open("actor_config/" + actorConfigFileName + ".xml");
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(in, "UTF-8");
 
@@ -255,12 +255,15 @@ public class Actor {
                 eventType = parser.next();
             }
             in.close();
+            setVisible(true);
+            setStandby(false);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void drawAnim(Canvas canvas, Paint paint, int[] xyOffset) {
+//        if (!isVisible()) return;
         if (isStandby())
             setNowAnim(Values.MAP_ANIM_STANDBY);
         xyInScrPx[0] = xyInMapPx[0] + xyOffset[0];
@@ -286,6 +289,19 @@ public class Actor {
         } else {                                         //未待机、非我方角色
             setNowAnim(Values.MAP_ANIM_STATIC);         //静态图标
         }
+    }
+
+    //角色待机
+    public void standby() {
+        setStandby(true);
+        setNowAnim(Values.MAP_ANIM_STANDBY);
+        Log.d("ACTOR", getName() + " Standby");
+    }
+
+    //角色唤醒
+    public void awake(){
+        setStandby(false);
+        setNowAnim(Values.MAP_ANIM_STATIC);
     }
 
     //角色按照移动路径移动
@@ -328,15 +344,25 @@ public class Actor {
         return true;
     }
 
-    //攻击
-    public void doAttack() {
-
+    //受伤
+    public void injured(int dmg) {
+        this.setHP(getHP()-dmg);
+        if (getHP()<=0)
+            this.setVisible(false);
     }
 
     //被攻击
-    public void beAttacked(){
-
+    public void beAttacked(Actor actor){
+        int dmg;
+        if (actor.getEquipedWeapon().getDmgType()==Values.DAMAGE_TYPE_PHYSICS)
+            dmg = actor.getAtk() - this.getDef();
+        else
+            dmg = actor.getMat() - this.getRes();
+        this.setHP(getHP()-dmg);
+        if (getHP()<=0)
+            this.setVisible(false);
     }
+
     public boolean equals(Actor actor) {
         if (actor == null)
             return false;

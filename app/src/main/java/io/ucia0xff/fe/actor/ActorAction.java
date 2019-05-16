@@ -7,19 +7,20 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import io.ucia0xff.fe.Paints;
 import io.ucia0xff.fe.R;
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.anim.Anim;
 import io.ucia0xff.fe.career.Career;
-import io.ucia0xff.fe.game.GameView;
 import io.ucia0xff.fe.item.Item;
-import io.ucia0xff.fe.map.Map;
 
 public class ActorAction {
     public static final String[] ACTIONS = {"攻击", "物品", "待机"};
     public static final boolean[] ACTIONS_ENABLE = {false, false, true};
+
+    public static final int ACTION_FAILED = -1;
     public static final int ACTION_ATTACK = 0;
     public static final int ACTION_ITEMS = 1;
     public static final int ACTION_STANDBY = 2;
@@ -36,6 +37,15 @@ public class ActorAction {
 
     //背景图片
     private Bitmap bg;
+
+    private String name1;
+    private String name2;
+    private int dmg1;
+    private int dmg2;
+    private int hit1;
+    private int hit2;
+    private int crt1;
+    private int crt2;
 
     public ActorAction(ActorMove move) {
         this.move = move;
@@ -79,9 +89,9 @@ public class ActorAction {
     }
 
     //检查选择的选项
-    public boolean checkAction(int[] xy) {
+    public int checkAction(int[] xy) {
         if (startXY[0] + bg.getWidth() < xy[0] || xy[0] < startXY[0])//超出选项左右边界
-            return false;
+            return ACTION_FAILED;
         actionIndex = -1;
         for (int i = 0; i < ACTIONS.length; i++) {
             if (startXY[1] + i * bg.getHeight() < xy[1] && xy[1] < startXY[1] + i * bg.getHeight() + bg.getHeight())
@@ -89,21 +99,21 @@ public class ActorAction {
         }
         switch (actionIndex) {
             case ACTION_ATTACK:
-                if (!ACTIONS_ENABLE[ACTION_ATTACK])//攻击选项不可用
-                    return false;
+                if (ACTIONS_ENABLE[ACTION_ATTACK])//攻击选项可用
+                    return ACTION_ATTACK;
                 break;
             case ACTION_ITEMS:
-                if (!ACTIONS_ENABLE[ACTION_ITEMS])//物品选项不可用
-                    return false;
+                if (ACTIONS_ENABLE[ACTION_ITEMS])//物品选项可用
+                    return ACTION_ITEMS;
                 break;
             case ACTION_STANDBY:
-                if (!ACTIONS_ENABLE[ACTION_STANDBY])//待机选项不可用
-                    return false;
+                if (ACTIONS_ENABLE[ACTION_STANDBY])//待机选项可用
+                    return ACTION_STANDBY;
                 break;
             default:
-                return false;
+                return ACTION_FAILED;
         }
-        return true;
+        return ACTION_FAILED;
     }
 
     public Actor getTargetActor(int[] xyTile) {
@@ -157,44 +167,73 @@ public class ActorAction {
     //显示战斗信息
     public void showBattleInfo(Canvas canvas, Paint paint, Actor actor1, Actor actor2) {
         if (actor1==null || actor2==null) return;
+        setBattleInfo(actor1, actor2);
+
         paint = Paints.paints.get("battle_info_center");
         int startY = (int)(paint.getFontMetrics().bottom - paint.getFontMetrics().top);
         int rowStep = startY;
         int margin = (int) paint.measureText("对战");
         canvas.drawText("|对战|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
-        canvas.drawText(actor1.getName(), Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
-        canvas.drawText(actor2.getName(), Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+        canvas.drawText(name1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
+        canvas.drawText(name2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
 
-        int value1;
-        int value2;
-        if (actor1.getEquipedWeapon().getDmgType()==Values.DAMAGE_TYPE_PHYSICS)
-            value1 = actor1.getAtk() - actor2.getDef();
-        else
-            value1 = actor1.getMat() - actor2.getRes();
-        value1 = value1<0?0:value1;
-        if (actor2.getEquipedWeapon().getDmgType()==Values.DAMAGE_TYPE_PHYSICS)
-            value2 = actor2.getAtk() - actor1.getDef();
-        else
-            value2 = actor2.getMat() - actor1.getRes();
-        value2 = value2<0?0:value2;
         startY+=rowStep;
         canvas.drawText("|伤害|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
-        canvas.drawText(""+value1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
-        canvas.drawText(""+value2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+        canvas.drawText(""+dmg1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
+        canvas.drawText(""+dmg2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
 
-        value1=actor1.getHit() - actor2.getAvd();
-        value2=actor2.getHit() - actor1.getAvd();
         startY+=rowStep;
         canvas.drawText("|命中|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
-        canvas.drawText(""+value1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
-        canvas.drawText(""+value2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+        canvas.drawText(""+hit1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
+        canvas.drawText(""+hit2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
 
-        value1=actor1.getCrt() - actor2.getLuc();
-        value2=actor2.getCrt() - actor1.getLuc();
         startY+=rowStep;
         canvas.drawText("|必杀|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
-        canvas.drawText(""+value1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
-        canvas.drawText(""+value2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+        canvas.drawText(""+crt1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
+        canvas.drawText(""+crt2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+    }
+
+    public void setBattleInfo(Actor actor1, Actor actor2) {
+        name1 = actor1.getName();
+        name2 = actor2.getName();
+
+        if (actor1.getEquipedWeapon().getDmgType()==Values.DAMAGE_TYPE_PHYSICS)
+            dmg1 = actor1.getAtk() - actor2.getDef();
+        else
+            dmg1 = actor1.getMat() - actor2.getRes();
+        dmg1 = dmg1<0?0:dmg1;
+        if (actor2.getEquipedWeapon().getDmgType()==Values.DAMAGE_TYPE_PHYSICS)
+            dmg2 = actor2.getAtk() - actor1.getDef();
+        else
+            dmg2 = actor2.getMat() - actor1.getRes();
+        dmg2 = dmg2<0?0:dmg2;
+
+        hit1=actor1.getHit() - actor2.getAvd();
+        hit1 = hit1>100?100:hit2;
+        hit1 = hit1<0?0:hit1;
+        hit2=actor2.getHit() - actor1.getAvd();
+        hit2 = hit2>100?100:hit2;
+        hit2 = hit2<0?0:hit2;
+
+        crt1=actor1.getCrt() - actor2.getLuc();
+        crt1 = crt1>100?100:crt1;
+        crt1 = crt1<0?0:crt1;
+        crt2=actor2.getCrt() - actor1.getLuc();
+        crt2 = crt2>100?100:crt2;
+        crt2 = crt2<0?0:crt2;
+    }
+
+    public void battle(Actor actor1, Actor actor2) {
+        setBattleInfo(actor1, actor2);
+        Random random = new Random();
+        int hit = 0,crt = 0;
+        if ((hit = random.nextInt(100)) < hit1) {
+            if ((crt = random.nextInt(100)) < crt1)
+                actor2.injured(dmg1);
+            else
+                actor2.injured(dmg1 * 3);
+        }
+        Log.d("BATTLE_INFO", "命中随机数："+hit+"，必杀随机数："+crt);
     }
 
     public Actor getSrcActor() {
