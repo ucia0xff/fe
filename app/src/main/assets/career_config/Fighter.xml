@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <career>
     <!--基本信息-->
-    <key>Lord</key><!--职业标识-->
-    <name>领主</name><!--职业名-->
-    <info>治理领地的君主后裔 还很年轻，未成大器</info><!--职业说明-->
-    <face>Unknown.png</face><!--职业通用头像-->
+    <key>Fighter</key><!--职业标识-->
+    <name>战士</name><!--职业名-->
+    <info>力量强但守备弱的『暴汉』 装备『斧』</info><!--职业说明-->
+    <face>Fighter.png</face><!--职业通用头像-->
     <mount>0</mount><!--坐骑，不写和0无，1马，2天马，3飞龙-->
-    <type>1</type><!--兵种类型，1上位步兵-->
+    <type>0</type><!--兵种类型，0下位步兵-->
     <move-spd>1</move-spd><!--移动速度，0很慢，1正常，2很快-->
 
     <!--初始能力-->
     <init-lv>1</init-lv><!--初始等级-->
-    <init-mhp>16</init-mhp><!--初始最大生命-->
-    <init-str>4</init-str><!--初始力量-->
+    <init-mhp>20</init-mhp><!--初始最大生命-->
+    <init-str>5</init-str><!--初始力量-->
     <init-mag>0</init-mag><!--初始魔力-->
-    <init-skl>8</init-skl><!--初始技术-->
-    <init-spd>9</init-spd><!--初始速度-->
+    <init-skl>2</init-skl><!--初始技术-->
+    <init-spd>4</init-spd><!--初始速度-->
     <init-luc>0</init-luc><!--初始幸运-->
-    <init-def>3</init-def><!--初始守备-->
-    <init-res>1</init-res><!--初始魔防-->
+    <init-def>2</init-def><!--初始守备-->
+    <init-res>0</init-res><!--初始魔防-->
     <init-mov>5</init-mov><!--初始移动-->
-    <init-con>5</init-con><!--初始体格-->
+    <init-con>11</init-con><!--初始体格-->
 
     <!--能力上限-->
     <max-lv>20</max-lv>
@@ -36,19 +36,19 @@
     <max-con>20</max-con>
 
     <!--职业通用成长率-->
-    <grow-mhp>90</grow-mhp><!--最大生命成长-->
-    <grow-str>45</grow-str><!--力量成长-->
-    <grow-mag>20</grow-mag><!--魔力成长-->
-    <grow-skl>40</grow-skl><!--技术成长-->
-    <grow-spd>45</grow-spd><!--速度成长-->
-    <grow-luc>40</grow-luc><!--幸运成长-->
+    <grow-mhp>85</grow-mhp><!--最大生命成长-->
+    <grow-str>55</grow-str><!--力量成长-->
+    <grow-mag>10</grow-mag><!--魔力成长-->
+    <grow-skl>35</grow-skl><!--技术成长-->
+    <grow-spd>30</grow-spd><!--速度成长-->
+    <grow-luc>15</grow-luc><!--幸运成长-->
     <grow-def>15</grow-def><!--守备成长-->
-    <grow-res>20</grow-res><!--魔防成长-->
+    <grow-res>15</grow-res><!--魔防成长-->
 
     <!--初始武器熟练度-->
-    <init-swd>1</init-swd><!--剑武器熟练度-->
+    <init-swd>0</init-swd><!--剑武器熟练度-->
     <init-lan>0</init-lan><!--枪武器熟练度-->
-    <init-axe>0</init-axe><!--斧武器熟练度-->
+    <init-axe>31</init-axe><!--斧武器熟练度-->
     <init-bow>0</init-bow><!--弓武器熟练度-->
     <init-stf>0</init-stf><!--杖武器熟练度-->
     <init-anm>0</init-anm><!--理武器熟练度-->
@@ -56,9 +56,9 @@
     <init-drk>0</init-drk><!--暗武器熟练度-->
 
     <!--武器熟练度上限-->
-    <max-swd>181</max-swd>
+    <max-swd>0</max-swd>
     <max-lan>0</max-lan>
-    <max-axe>0</max-axe>
+    <max-axe>181</max-axe>
     <max-bow>0</max-bow>
     <max-stf>0</max-stf>
     <max-anm>0</max-anm>

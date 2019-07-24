@@ -10,17 +10,18 @@ import org.xmlpull.v1.XmlPullParser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 import io.ucia0xff.fe.Values;
-import io.ucia0xff.fe.anim.ActorAnims;
+//import io.ucia0xff.fe.anim.CareerAnims;
 import io.ucia0xff.fe.anim.Anim;
 import io.ucia0xff.fe.career.Career;
 import io.ucia0xff.fe.career.Careers;
 import io.ucia0xff.fe.item.Item;
 import io.ucia0xff.fe.item.Items;
-import io.ucia0xff.fe.map.MapInfo;
+import io.ucia0xff.fe.map.TerrainInfo;
 import io.ucia0xff.fe.map.Terrain;
+import io.ucia0xff.fe.util.RangeHelper;
 
 public class Actor {
     //配置信息
@@ -35,15 +36,16 @@ public class Actor {
     private String name;//角色名
     private String info;//角色说明
     private Bitmap face;//角色头像
+    private int affin;//相性
 
-    private List<Item> items;//携带的物品
+    private ArrayList<Item> items;//携带的物品
     private Item equipedWeapon;//当前装备的武器
 
     //能力信息
     private int LV;//等级
     private int exp;//经验
     private int MHP;//最大HP
-    private int HP;//HP
+    private int HP;//当前HP
     private int str;//力量
     private int mag;//魔力
     private int skl;//技术
@@ -54,8 +56,6 @@ public class Actor {
     private int mov;//移动
     private int con;//体格
     private int aid;//救出
-    private int mnt;//坐骑
-    private int aff;//属性
 
     private int[] status;//状态
 
@@ -92,6 +92,8 @@ public class Actor {
 
     private boolean standby;//是否待机
     private boolean visible;//是否可见
+    private boolean canAttack;//可否攻击
+    private boolean goBack;//攻击完返回原位
 
     public Actor(String actorConfigFileName) {
         try {
@@ -117,22 +119,25 @@ public class Actor {
                         xyInMapPx[0] = xyInMapTile[0] * Values.MAP_TILE_WIDTH;
                         xyInMapPx[1] = xyInMapTile[1] * Values.MAP_TILE_HEIGHT;
                     } else if ("actor-key".equals(parser.getName())) {
-                        String key = parser.nextText().trim();
-                        actorKey = (key.length() > 0) ? key : "";//角色标识
+                        actorKey = parser.nextText().trim();;//角色标识
                     } else if ("career-key".equals(parser.getName())) {
                         String key = parser.nextText().trim();
-                        if (!Careers.careers.containsKey(key))
+                        if (!Careers.careers.containsKey(key)) {
                             Careers.careers.put(key, new Career(key));
+                        }
                         careerKey = key;//职业标识
-                        animKey = careerKey + Values.PARTIES[party];//角色动画标识
-                        setNowAnim(Values.MAP_ANIM_STATIC);//角色当前动画状态为“静止地图动画”
+                        animKey = careerKey + Values.PARTY_NAME[party];//角色动画标识
+                        setNowAnim(Values.MAP_ANIM_NORMAL);//角色当前动画状态为“静止地图动画”
                     } else if ("name".equals(parser.getName())) {
                         name = parser.nextText();
                     } else if ("info".equals(parser.getName())) {
                         info = parser.nextText();
                     } else if ("face".equals(parser.getName())) {
                         String fileName = parser.nextText();
-                        face = (fileName.trim().length() > 0) ? Anim.readBitMap("faces/" + fileName) : Careers.getCareer(careerKey).getFace();
+                        face = (fileName.trim().length() > 0) ? Anim.readBitmap("faces/" + fileName) : Careers.getCareer(careerKey).getFace();
+                    } else if ("affin".equals(parser.getName())) {
+                        String text = parser.nextText();
+                        if (text.length() > 0) affin = Integer.parseInt(text);
                     } else if ("adj-lv".equals(parser.getName())) {
                         String adjust = parser.nextText();
                         LV = Careers.getCareer(careerKey).getInitLV();
@@ -178,15 +183,6 @@ public class Actor {
                         String adjust = parser.nextText();
                         con = Careers.getCareer(careerKey).getInitCon();
                         if (adjust.length() > 0) con += Integer.parseInt(adjust);
-                    } else if ("adj-mnt".equals(parser.getName())) {
-                        String adjust = parser.nextText();
-                        mnt = Careers.getCareer(careerKey).getInitMnt();
-                        if (adjust.length() > 0) mnt = Integer.parseInt(adjust);
-                        aid = (mnt == 0) ? con - 1 : Careers.getCareer(careerKey).getMaxCon() - con;
-                    } else if ("adj-aff".equals(parser.getName())) {
-                        String adjust = parser.nextText();
-                        aff = Careers.getCareer(careerKey).getInitAff();
-                        if (adjust.length() > 0) aff = Integer.parseInt(adjust);
                     } else if ("grow-mhp".equals(parser.getName())) {
                         String rate = parser.nextText();
                         growMHP = (rate.length() > 0) ? Integer.parseInt(rate) : Careers.getCareer(careerKey).getGrowMHP();
@@ -239,56 +235,40 @@ public class Actor {
                         items = new ArrayList<>();
                         Item item;
                         String str = parser.nextText().trim();
-                        if (str.length()>0) {
+                        if (str.length() > 0) {
                             String[] keys = str.split(",");
                             for (String key : keys) {
-                                if ((item = Items.getItem(key)) == null)
+                                if ((item = Items.getItem(key)) == null) {
                                     item = new Item(key);
-                                if (items.size()<Values.ITEM_MAX_NUM)
+                                    Items.addItem(item);
+                                }
+                                if (items.size() < Values.ITEM_MAX_NUM)
                                     items.add(item);
                             }
                         }
                         setEquipedWeapon();
                     }
                 }
-                //获取到下一个节点，在触发解析动作
+                //获取到下一个节点，再进行解析
                 eventType = parser.next();
             }
             in.close();
             setVisible(true);
             setStandby(false);
+            setCanAttack(true);
+            setGoBack(false);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void drawAnim(Canvas canvas, Paint paint, int[] xyOffset) {
-//        if (!isVisible()) return;
         if (isStandby())
             setNowAnim(Values.MAP_ANIM_STANDBY);
         xyInScrPx[0] = xyInMapPx[0] + xyOffset[0];
         xyInScrPx[1] = xyInMapPx[1] + xyOffset[1];
-        ActorAnims.actorAnims.get(nowAnim).drawAnim(canvas, paint, xyInScrPx);
-    }
-
-    //角色被取消选中
-    public void lostCursor() {
-        if (isStandby()) {                                //已待机
-            setNowAnim(Values.MAP_ANIM_STANDBY);        //待机图标
-        } else {                                         //未待机
-            setNowAnim(Values.MAP_ANIM_STATIC);         //静态图标
-        }
-    }
-
-    //角色被选中
-    public void getCursor() {
-        if (isStandby()) {                                //已待机
-            setNowAnim(Values.MAP_ANIM_STANDBY);        //待机图标
-        } else if (party == Values.PARTY_PLAYER) {     //未待机、我方角色
-            setNowAnim(Values.MAP_ANIM_DYNAMIC);        //动态图标
-        } else {                                         //未待机、非我方角色
-            setNowAnim(Values.MAP_ANIM_STATIC);         //静态图标
-        }
+//        CareerAnims.careerAnims.get(nowAnim).drawAnim(canvas, paint, xyInScrPx);
+        Careers.careers.get(careerKey).getAnim(nowAnim).drawAnim(canvas, paint, xyInScrPx);
     }
 
     //角色待机
@@ -299,68 +279,159 @@ public class Actor {
     }
 
     //角色唤醒
-    public void awake(){
+    public void awake() {
         setStandby(false);
-        setNowAnim(Values.MAP_ANIM_STATIC);
+        setNowAnim(Values.MAP_ANIM_NORMAL);
+    }
+
+    public void lostCursor() {
+        if (isStandby()) {
+            setNowAnim(Values.MAP_ANIM_STANDBY);
+        } else {
+            setNowAnim(Values.MAP_ANIM_NORMAL);
+        }
+
     }
 
     //角色按照移动路径移动
-    public boolean move(ActorMove.NodeList movePath) {
-        ActorMove.Node nextNode;
+    public boolean move(RangeHelper.NodeList movePath) {
+        RangeHelper.Node node;
         int[] nextXy;
         for (int i = 0; i < movePath.size(); i++) {
-            nextNode = movePath.get(i);
-            if (!(nextNode.equals(xyInMapTile)))//找到移动路径中的当前位置
+            node = movePath.get(i);
+            if (!(node.equals(xyInMapTile)))//找到移动路径中角色当前位置的节点
                 continue;
-            if (i < movePath.size() - 1) {
-                nextNode = movePath.get(i + 1);//找到当前位置的下一个位置
-                nextXy = nextNode.getXy();
+            if (i < movePath.size() - 1) {//还有下一个位置，继续移动
+                node = movePath.get(i + 1);
+                nextXy = node.getXy();
                 if (nextXy[0] < xyInMapTile[0]) {//左移
                     xyInMapPx[0] -= Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_LEFT);
-                    if (xyInMapPx[0] == (xyInMapTile[0] - 1) * Values.MAP_TILE_WIDTH)
-                        xyInMapTile[0] -= 1;
+                    if (xyInMapPx[0] <= (xyInMapTile[0] - 1) * Values.MAP_TILE_WIDTH)
+                        xyInMapTile[0] -= 1;//像素左移超过了一个格子，x-1
                 } else if (nextXy[0] > xyInMapTile[0]) {//右移
                     xyInMapPx[0] += Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_RIGHT);
-                    if (xyInMapPx[0] == (xyInMapTile[0] + 1) * Values.MAP_TILE_WIDTH)
-                        xyInMapTile[0] += 1;
+                    if (xyInMapPx[0] >= (xyInMapTile[0] + 1) * Values.MAP_TILE_WIDTH)
+                        xyInMapTile[0] += 1;//像素右移超过了一个格子，x+1
                 } else if (nextXy[1] < xyInMapTile[1]) {//上移
                     xyInMapPx[1] -= Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_UP);
-                    if (xyInMapPx[1] == (xyInMapTile[1] - 1) * Values.MAP_TILE_HEIGHT)
-                        xyInMapTile[1] -= 1;
+                    if (xyInMapPx[1] <= (xyInMapTile[1] - 1) * Values.MAP_TILE_HEIGHT)
+                        xyInMapTile[1] -= 1;//像素上移超过了一个格子，y-1
                 } else if (nextXy[1] > xyInMapTile[1]) {//下移
                     xyInMapPx[1] += Careers.careers.get(careerKey).getMoveSpd();
                     setNowAnim(Values.MAP_ANIM_DOWN);
-                    if (xyInMapPx[1] == (xyInMapTile[1] + 1) * Values.MAP_TILE_HEIGHT)
-                        xyInMapTile[1] += 1;
+                    if (xyInMapPx[1] >= (xyInMapTile[1] + 1) * Values.MAP_TILE_HEIGHT)
+                        xyInMapTile[1] += 1;//像素下移超过了一个格子，y+1
                 }
-                return true;
-            } else {
                 return false;
+            } else {//没有下一个位置，移动结束
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
-    //受伤
-    public void injured(int dmg) {
-        this.setHP(getHP()-dmg);
-        if (getHP()<=0)
-            this.setVisible(false);
+    //攻击
+    public boolean doAttack(Actor target) {
+        if (!isCanAttack()) return true;//不能攻击，攻击过程结束
+        if (target.getXyInMapTile()[0] < getXyInMapTile()[0]) {//敌人在左，向左进半格攻击
+            xyInMapPx[0] -= goBack ? -5 : 5;
+            setNowAnim(Values.MAP_ANIM_LEFT);
+            if (xyInMapTile[0] * Values.MAP_TILE_WIDTH - xyInMapPx[0] >= 0.5 * Values.MAP_TILE_WIDTH) { //进了半格
+                setGoBack(true);
+            }
+            if (xyInMapTile[0] * Values.MAP_TILE_WIDTH <= xyInMapPx[0]) { //退回了原位,攻击过程结束
+                setGoBack(false);
+                setCanAttack(false);
+                Log.d("BATTLE_INFO", this.getName() + "对" + target.getName() + "发动攻击!");
+                target.beAttacked(this);
+                setNowAnim(Values.MAP_ANIM_NORMAL);
+                return true;//攻击完成
+            }
+        } else if (target.getXyInMapTile()[0] > getXyInMapTile()[0]) {//敌人在右，向右进半格攻击
+            xyInMapPx[0] += goBack ? -5 : 5;
+            setNowAnim(Values.MAP_ANIM_RIGHT);
+            if (xyInMapPx[0] - xyInMapTile[0] * Values.MAP_TILE_WIDTH >= 0.5 * Values.MAP_TILE_WIDTH) { //进了半格
+                setGoBack(true);
+            }
+            if (xyInMapTile[0] * Values.MAP_TILE_WIDTH >= xyInMapPx[0]) {//退回了原位,攻击过程结束
+                setGoBack(false);
+                setCanAttack(false);
+                Log.d("BATTLE_INFO", this.getName() + "对" + target.getName() + "发动攻击!");
+                target.beAttacked(this);
+                setNowAnim(Values.MAP_ANIM_NORMAL);
+                return true;//攻击完成
+            }
+        } else if (target.getXyInMapTile()[1] < getXyInMapTile()[1]) {//敌人在上，向上进半格攻击
+            xyInMapPx[1] -= goBack ? -5 : 5;
+            setNowAnim(Values.MAP_ANIM_UP);
+            if (xyInMapTile[1] * Values.MAP_TILE_HEIGHT - xyInMapPx[1] >= 0.5 * Values.MAP_TILE_HEIGHT) { //进了半格
+                setGoBack(true);
+            }
+            if (xyInMapTile[1] * Values.MAP_TILE_HEIGHT <= xyInMapPx[1]) {//退回了原位,攻击过程结束
+                setGoBack(false);
+                setCanAttack(false);
+                Log.d("BATTLE_INFO", this.getName() + "对" + target.getName() + "发动攻击!");
+                target.beAttacked(this);
+                setNowAnim(Values.MAP_ANIM_NORMAL);
+                return true;//攻击完成
+            }
+        } else {//敌人在下，向下进半格攻击
+            xyInMapPx[1] += goBack ? -5 : 5;
+            setNowAnim(Values.MAP_ANIM_DOWN);
+            if (xyInMapPx[1] - xyInMapTile[1] * Values.MAP_TILE_HEIGHT >= 0.5 * Values.MAP_TILE_HEIGHT) { //进了半格
+                setGoBack(true);
+            }
+            if (xyInMapTile[1] * Values.MAP_TILE_HEIGHT >= xyInMapPx[1]) {//退回了原位,攻击过程结束
+                setGoBack(false);
+                setCanAttack(false);
+                Log.d("BATTLE_INFO", this.getName() + "对" + target.getName() + "发动攻击!");
+                target.beAttacked(this);
+                setNowAnim(Values.MAP_ANIM_NORMAL);
+                return true;//攻击完成
+            }
+        }
+        return false;
     }
 
     //被攻击
-    public void beAttacked(Actor actor){
-        int dmg;
-        if (actor.getEquipedWeapon().getDmgType()==Values.DAMAGE_TYPE_PHYSICS)
+    public void beAttacked(Actor actor) {
+        int dmg, hit, crt;
+        if (actor.getEquipedWeapon().getDmgType() == Values.DAMAGE_TYPE_PHYSICS)
             dmg = actor.getAtk() - this.getDef();
         else
             dmg = actor.getMat() - this.getRes();
-        this.setHP(getHP()-dmg);
-        if (getHP()<=0)
+        dmg = dmg < 0 ? 0 : dmg;
+
+        hit = actor.getHit() - this.getAvd();
+        hit = hit > 100 ? 100 : hit;
+        hit = hit < 0 ? 0 : hit;
+
+        crt = actor.getCrt() - this.getLuc();
+        crt = crt > 100 ? 100 : crt;
+        crt = crt < 0 ? 0 : crt;
+
+        Random random = new Random();
+        int hitNum = 0, crtNum = 0;
+        if ((hitNum = random.nextInt(100)) < hit) {
+            if ((crtNum = random.nextInt(100)) < crt) {
+                this.injured(dmg * 3);
+            } else {
+                this.injured(dmg);
+            }
+        }
+        Log.d("BATTLE_INFO", "命中随机数：" + hitNum + "命中：" + hit + "；必杀随机数：" + crtNum + "必杀：" + crt);
+    }
+
+
+    //受伤
+    public void injured(int dmg) {
+        this.setHP(this.getHP() - dmg);
+        if (this.getHP() <= 0) {
             this.setVisible(false);
+        }
     }
 
     public boolean equals(Actor actor) {
@@ -436,32 +507,32 @@ public class Actor {
         this.face = face;
     }
 
-    public List<Item> getItems() {
+    public ArrayList<Item> getItems() {
         return items;
     }
 
-    public void setItems(List<Item> items) {
+    public void setItems(ArrayList<Item> items) {
         this.items = items;
     }
 
     public boolean addItem(Item item) {
-        if (items.size()==Values.ITEM_MAX_NUM)
+        if (items.size() == Values.ITEM_MAX_NUM)
             return false;
         items.add(item);
         return true;
     }
 
     public boolean delItem(int index) {
-        items.remove(index-1);
+        items.remove(index - 1);
         return true;
     }
 
-    public boolean canEquip(Item item){
+    public boolean canEquip(Item item) {
         if (!item.canEquip())
             return false;
         int itemLv = item.getLv();
         int actorExp = 0;
-        switch (item.getType()){
+        switch (item.getType()) {
             case Values.ITEM_TYPE_SWORD:
                 actorExp = getExpSwd();
                 break;
@@ -495,8 +566,8 @@ public class Actor {
     }
 
     public void setEquipedWeapon() {
-        for (Item item:items){
-            if (item!=null && this.canEquip(item)) {
+        for (Item item : items) {
+            if (item != null && this.canEquip(item)) {
                 setEquipedWeapon(item);
                 Log.d("ACTOR_INFO", "正装备的武器：" + item.getName());
                 return;
@@ -506,6 +577,57 @@ public class Actor {
 
     public void setEquipedWeapon(Item equipedWeapon) {
         this.equipedWeapon = equipedWeapon;
+    }
+
+    public void gainExp(int exp) {
+        if (LV == Careers.careers.get(careerKey).getMaxLV()) {//满级不再获取exp
+            return;
+        } else if (this.exp + exp >= 100) {
+            setExp((this.exp + exp) % 100);
+            levelUp();
+        } else {
+            setExp(this.exp + exp);
+        }
+    }
+
+    public void levelUp() {
+        this.LV += 1;
+        if (LV == Careers.careers.get(careerKey).getMaxLV()) {//满级exp清零
+            setExp(0);
+        }
+        Random random = new Random();
+        if (random.nextInt(100) < growMHP) {
+            setMHP(getMHP() + 1);
+            Log.d("ACTOR_LEVEL_UP", "生命+1");
+        }
+        if (random.nextInt(100) < growStr) {
+            setStr(getStr() + 1);
+            Log.d("ACTOR_LEVEL_UP", "力量+1");
+        }
+        if (random.nextInt(100) < growMag) {
+            setMag(getMag() + 1);
+            Log.d("ACTOR_LEVEL_UP", "魔力+1");
+        }
+        if (random.nextInt(100) < growSkl) {
+            setSkl(getSkl() + 1);
+            Log.d("ACTOR_LEVEL_UP", "技术+1");
+        }
+        if (random.nextInt(100) < growSpd) {
+            setSpd(getSpd() + 1);
+            Log.d("ACTOR_LEVEL_UP", "速度+1");
+        }
+        if (random.nextInt(100) < growLuc) {
+            setLuc(getLuc() + 1);
+            Log.d("ACTOR_LEVEL_UP", "幸运+1");
+        }
+        if (random.nextInt(100) < growDef) {
+            setDef(getDef() + 1);
+            Log.d("ACTOR_LEVEL_UP", "守备+1");
+        }
+        if (random.nextInt(100) < growRes) {
+            setRes(getRes() + 1);
+            Log.d("ACTOR_LEVEL_UP", "魔防+1");
+        }
     }
 
     public int getLV() {
@@ -529,7 +651,10 @@ public class Actor {
     }
 
     public void setMHP(int MHP) {
-        this.MHP = MHP;
+        if (MHP <= Careers.careers.get(careerKey).getMaxMHP())
+            this.MHP = MHP;
+        else
+            this.MHP = Careers.careers.get(careerKey).getMaxMHP();
     }
 
     public int getHP() {
@@ -537,7 +662,10 @@ public class Actor {
     }
 
     public void setHP(int HP) {
-        this.HP = HP;
+        if (HP <= MHP)
+            this.HP = HP;
+        else
+            this.HP = this.MHP;
     }
 
     public int getStr() {
@@ -545,7 +673,10 @@ public class Actor {
     }
 
     public void setStr(int str) {
-        this.str = str;
+        if (str <= Careers.careers.get(careerKey).getMaxStr())
+            this.str = str;
+        else
+            this.str = Careers.careers.get(careerKey).getMaxStr();
     }
 
     public int getMag() {
@@ -553,7 +684,10 @@ public class Actor {
     }
 
     public void setMag(int mag) {
-        this.mag = mag;
+        if (mag <= Careers.careers.get(careerKey).getMaxMag())
+            this.mag = mag;
+        else
+            this.mag = Careers.careers.get(careerKey).getMaxMag();
     }
 
     public int getSkl() {
@@ -561,7 +695,10 @@ public class Actor {
     }
 
     public void setSkl(int skl) {
-        this.skl = skl;
+        if (skl <= Careers.careers.get(careerKey).getMaxSkl())
+            this.skl = skl;
+        else
+            this.skl = Careers.careers.get(careerKey).getMaxSkl();
     }
 
     public int getSpd() {
@@ -569,7 +706,10 @@ public class Actor {
     }
 
     public void setSpd(int spd) {
-        this.spd = spd;
+        if (spd <= Careers.careers.get(careerKey).getMaxSpd())
+            this.spd = spd;
+        else
+            this.spd = Careers.careers.get(careerKey).getMaxSpd();
     }
 
     public int getLuc() {
@@ -577,7 +717,10 @@ public class Actor {
     }
 
     public void setLuc(int luc) {
-        this.luc = luc;
+        if (luc <= Careers.careers.get(careerKey).getMaxLuc())
+            this.luc = luc;
+        else
+            this.luc = Careers.careers.get(careerKey).getMaxLuc();
     }
 
     public int getDef() {
@@ -585,7 +728,10 @@ public class Actor {
     }
 
     public void setDef(int def) {
-        this.def = def;
+        if (def <= Careers.careers.get(careerKey).getMaxDef())
+            this.def = def;
+        else
+            this.def = Careers.careers.get(careerKey).getMaxDef();
     }
 
     public int getRes() {
@@ -593,7 +739,10 @@ public class Actor {
     }
 
     public void setRes(int res) {
-        this.res = res;
+        if (res <= Careers.careers.get(careerKey).getMaxRes())
+            this.res = res;
+        else
+            this.res = Careers.careers.get(careerKey).getMaxRes();
     }
 
     public int getMov() {
@@ -613,6 +762,10 @@ public class Actor {
     }
 
     public int getAid() {
+        if (Careers.careers.get(careerKey).getMount()>0)
+            setAid(Careers.getCareer(careerKey).getMaxCon() - getCon());
+        else
+            setAid(getCon() - 1);
         return aid;
     }
 
@@ -620,20 +773,12 @@ public class Actor {
         this.aid = aid;
     }
 
-    public int getMnt() {
-        return mnt;
+    public int getAffin() {
+        return affin;
     }
 
-    public void setMnt(int mnt) {
-        this.mnt = mnt;
-    }
-
-    public int getAff() {
-        return aff;
-    }
-
-    public void setAff(int aff) {
-        this.aff = aff;
+    public void setAffin(int affin) {
+        this.affin = affin;
     }
 
     public int[] getStatus() {
@@ -772,9 +917,9 @@ public class Actor {
         this.expDrk = expDrk;
     }
 
-    public String getRng(){
+    public String getRng() {
         String rng = "--";
-        if (equipedWeapon !=null){
+        if (equipedWeapon != null) {
             rng = equipedWeapon.getRange()[0] + "~" + equipedWeapon.getRange()[1];
         }
         return rng;
@@ -782,7 +927,7 @@ public class Actor {
 
     public int getAtk() {
         atk = str;
-        if (equipedWeapon != null && equipedWeapon.getDmgType()==Values.DAMAGE_TYPE_PHYSICS){
+        if (equipedWeapon != null && equipedWeapon.getDmgType() == Values.DAMAGE_TYPE_PHYSICS) {
             atk += equipedWeapon.getAtk();
         }
         return atk;
@@ -794,7 +939,7 @@ public class Actor {
 
     public int getMat() {
         mat = getMag();
-        if (equipedWeapon != null && equipedWeapon.getDmgType()==Values.DAMAGE_TYPE_MAGICAL){
+        if (equipedWeapon != null && equipedWeapon.getDmgType() == Values.DAMAGE_TYPE_MAGICAL) {
             mat += equipedWeapon.getAtk();
         }
         return mat;
@@ -806,7 +951,7 @@ public class Actor {
 
     public int getHit() {
         hit = getSkl() * 2 + getLuc() / 2;
-        if (equipedWeapon != null){
+        if (equipedWeapon != null) {
             hit += equipedWeapon.getHit();
         }
         return hit;
@@ -817,7 +962,7 @@ public class Actor {
     }
 
     public int getAvd() {
-        avd = getSpd() * 2 + getLuc() + Terrain.TERRAIN_EFFECT[MapInfo.getTerrain(xyInMapTile)][0];
+        avd = getSpd() * 2 + getLuc() + TerrainInfo.TERRAIN_EFFECT[Terrain.getTerrain(xyInMapTile)][0];
         return avd;
     }
 
@@ -839,7 +984,7 @@ public class Actor {
 
     public int getAsp() {
         asp = getSpd();
-        if (equipedWeapon != null && getCon() < equipedWeapon.getWgt()){
+        if (equipedWeapon != null && getCon() < equipedWeapon.getWgt()) {
             asp -= equipedWeapon.getWgt() - getCon();
         }
         return asp;
@@ -865,6 +1010,14 @@ public class Actor {
         this.nowAnim = animKey + nowAnim;
     }
 
+    public boolean isCanAttack() {
+        return canAttack;
+    }
+
+    public void setCanAttack(boolean canAttack) {
+        this.canAttack = canAttack;
+    }
+
     public boolean isStandby() {
         return standby;
     }
@@ -879,5 +1032,13 @@ public class Actor {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    public boolean isGoBack() {
+        return goBack;
+    }
+
+    public void setGoBack(boolean goBack) {
+        this.goBack = goBack;
     }
 }

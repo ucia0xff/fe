@@ -1,11 +1,10 @@
 package io.ucia0xff.fe.item;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class Items {
     public static Item item;
-    public static Map<String, Item> items = new HashMap<>();
+    public static HashMap<String, Item> items = new HashMap<>();
 
     static {
 //        item = new Item("IronSword");
@@ -25,7 +24,7 @@ public class Items {
         items.put(item.getKey(), item);
     }
 
-    public static Map<String, Item> getItems() {
+    public static HashMap<String, Item> getItems() {
         return items;
     }
 }

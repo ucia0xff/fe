@@ -34,41 +34,37 @@ public class Values {
     public static Rect MAP_ANIM_SIZE_32x32 = new Rect(0, 0, MAP_TILE_WIDTH*2, MAP_TILE_HEIGHT*2);
 
     //角色阵营
-    public static final String[] PARTIES = {"Player", "Ally", "Enemy", "Unknown"};
-    public static final boolean[] PHASE = {false, false, false, false};
-    public static final int PARTY_COUNT = 4;
+    public static final String[] PARTY_NAME = {"Player", "Ally", "Enemy"};
+    public static final int PARTY_COUNT = 3;
     public static final int PARTY_PLAYER = 0;//我军
     public static final int PARTY_ALLY = 1;//友军
     public static final int PARTY_ENEMY = 2;//敌军
-    public static final int PARTY_UNKNOWN = 3;//未知
 
     //回合阶段
     public static final int PHASE_PLAYER = 0;
-    public static final int PHASE_ENEMY = 1;
-    public static final int PHASE_ALLY = 2;
-    public static final int PHASE_UNKNOWN = 3;
+    public static final int PHASE_ALLY = 1;
+    public static final int PHASE_ENEMY = 2;
 
-    //游戏进行阶段
-    public static final int CASE_NORMAL = 0;//未选中角色
-    public static final int CASE_BEFORE_MOVE = 1;//移动前、显示移动范围
-    public static final int CASE_MOVING = 2;//移动中
-    public static final int CASE_AFTER_MOVE = 3;//移动后、显示行动菜单
+    //游戏系统状态
+    public static final int CASE_NORMAL = 0;//通常状态
+    public static final int CASE_BEFORE_MOVE = 1;//移动前状态，显示移动范围
+    public static final int CASE_MOVING = 2;//移动中状态，播放移动动画
+    public static final int CASE_AFTER_MOVE = 3;//移动后状态，显示角色行动菜单
     public static final int CASE_SELECT_ITEM = 4;//选择要使用的武器/杖/道具
-    public static final int CASE_BEFORE_ACT = 5;//选择目标/操作
-    public static final int CASE_ACTING = 6;//行动中
-    public static final int CASE_AFTER_ACT = 7;//行动结束
+    public static final int CASE_BEFORE_ACT = 5;//行动前状态，选择行动目标
+    public static final int CASE_ACTING = 6;//行动中状态，播放战斗动画
+    public static final int CASE_AFTER_ACT = 7;//行动后状态，获得经验
     public static final int CASE_SHOW_ACTOR_INFO = 8;//显示角色信息
     public static final int CASE_SHOW_GAME_OPTIONS = 9;//显示游戏菜单
 
 
     //角色地图动画状态
-    public static final String MAP_ANIM_STATIC = "Static";
-    public static final String MAP_ANIM_DYNAMIC = "Dynamic";
-    public static final String MAP_ANIM_DOWN = "Down";
-    public static final String MAP_ANIM_UP = "Up";
-    public static final String MAP_ANIM_RIGHT = "Right";
-    public static final String MAP_ANIM_LEFT = "Left";
-    public static final String MAP_ANIM_STANDBY = "Standby";
+    public static final String MAP_ANIM_NORMAL = "Normal";//通常状态
+    public static final String MAP_ANIM_STANDBY = "Standby";//待机状态
+    public static final String MAP_ANIM_LEFT = "Left";//左移状态
+    public static final String MAP_ANIM_RIGHT = "Right";//右移状态
+    public static final String MAP_ANIM_UP = "Up";//上移状态
+    public static final String MAP_ANIM_DOWN = "Down";//下移状态
 
     //光标动画状态
     public static final String CURSOR_DYNAMIC="Dynamic";
@@ -123,8 +119,11 @@ public class Values {
     public static final String STAND = "Stand";//站立不动
     public static final String DODGE = "Dodge";//回避
 
+    //坐骑
+    public static final String[] MOUNT_NAME = {"无","马","天马","飞龙"};
+
     //人物属性
-    public static final String[] AFFIN = {"","炎","雷","风","冰","暗","光","理"};
+    public static final String[] AFFIN_NAME = {"无","炎","雷","风","冰","暗","光","理"};
 
     //人物移动速度
     public static final int[] MOVE_SPEED = {5, 10, 20};

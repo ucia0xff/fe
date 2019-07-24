@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<career>
+    <!--基本信息-->
+    <key>Paladin</key>!--职业标识-->
+    <name>圣骑士</name><!--职业名-->
+    <info>攻守兼备且有着高超移动力 装备『剑·枪』</info><!--职业说明-->
+    <face>Paladin.png</face><!--职业通用头像-->
+    <mount>1</mount><!--坐骑，不写和0无，1马，2天马，3飞龙-->
+    <type>3</type><!--兵种类型，3上位骑兵-->
+    <move-spd>2</move-spd><!--移动速度，0很慢，1正常，2很快-->
+
+    <!--初始能力-->
+    <init-lv>1</init-lv><!--初始等级-->
+    <init-mhp>23</init-mhp><!--初始最大生命-->
+    <init-str>7</init-str><!--初始力量-->
+    <init-mag>3</init-mag><!--初始魔力-->
+    <init-skl>4</init-skl><!--初始技术-->
+    <init-spd>7</init-spd><!--初始速度-->
+    <init-luc>1</init-luc><!--初始幸运-->
+    <init-def>8</init-def><!--初始守备-->
+    <init-res>3</init-res><!--初始魔防-->
+    <init-mov>8</init-mov><!--初始移动-->
+    <init-con>11</init-con><!--初始体格-->
+
+    <!--能力上限-->
+    <max-lv>20</max-lv>
+    <max-mhp>60</max-mhp>
+    <max-str>25</max-str>
+    <max-mag>25</max-mag>
+    <max-skl>26</max-skl>
+    <max-spd>24</max-spd>
+    <max-luc>30</max-luc>
+    <max-def>25</max-def>
+    <max-res>25</max-res>
+    <max-mov>20</max-mov>
+    <max-con>25</max-con>
+
+    <!--职业通用成长率-->
+    <grow-mhp>70</grow-mhp><!--最大生命成长-->
+    <grow-str>25</grow-str><!--力量成长-->
+    <grow-mag>15</grow-mag><!--魔力成长-->
+    <grow-skl>30</grow-skl><!--技术成长-->
+    <grow-spd>18</grow-spd><!--速度成长-->
+    <grow-luc>25</grow-luc><!--幸运成长-->
+    <grow-def>12</grow-def><!--守备成长-->
+    <grow-res>20</grow-res><!--魔防成长-->
+
+    <!--初始武器熟练度-->
+    <init-swd>31</init-swd><!--剑武器熟练度-->
+    <init-lan>31</init-lan><!--枪武器熟练度-->
+    <init-axe>0</init-axe><!--斧武器熟练度-->
+    <init-bow>0</init-bow><!--弓武器熟练度-->
+    <init-stf>0</init-stf><!--杖武器熟练度-->
+    <init-anm>0</init-anm><!--理武器熟练度-->
+    <init-lgt>0</init-lgt><!--光武器熟练度-->
+    <init-drk>0</init-drk><!--暗武器熟练度-->
+
+    <!--武器熟练度上限-->
+    <max-swd>251</max-swd>
+    <max-lan>251</max-lan>
+    <max-axe>0</max-axe>
+    <max-bow>0</max-bow>
+    <max-stf>0</max-stf>
+    <max-anm>0</max-anm>
+    <max-lgt>0</max-lgt>
+    <max-drk>0</max-drk>
+
+</career>

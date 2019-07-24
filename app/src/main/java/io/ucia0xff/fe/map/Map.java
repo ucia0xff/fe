@@ -13,12 +13,11 @@ import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.anim.Anim;
 
 public class Map {
-    //瓦片图集
-    public static Bitmap res;
+    //地图瓦片集
+    public static Bitmap tileSet = null;
 
-    //图集的宽高
-    public static int resWidth = 0;
-    public static int resHeight = 0;
+    //地图名
+    public static String mapName = "";
 
     //地图的宽高
     public static int mapWidth = 0;
@@ -33,18 +32,27 @@ public class Map {
     public static int mapHeightTileCount = 0;
 
     //瓦片在图集中的序号
-    public static int[][] tileIndex;
+    public static int[][] tileIndexes;
 
-    //瓦片对应的地形id
-    public static int[][] terrain;
+    //瓦片对应的地形的序号
+    public static int[][] terrainIndexes;
+    private Terrain terrain;
 
     private InputStream is;
 
+    public Map() {
+
+    }
+
     public Map(String mapName) {
+        this.mapName = mapName;
+        readMap(mapName);
+    }
+
+    public void readMap(String mapName) {
         readTiles(mapName);
         readTerrain(mapName);
     }
-
 
 
     /**
@@ -56,12 +64,12 @@ public class Map {
             is = Values.CONTEXT.getAssets().open("map_config/" + mapName + ".map");
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-            //第一行是用到的地图块集文件
-            String line = br.readLine();//第一行是地图块集文件名
-            String tilesetName = "tile_set/" + line + ".png";
-            res = Anim.readBitMap(tilesetName);
-            resWidthTileCount = res.getWidth() / Values.RES_TILE_WIDTH;
-            resHeightTileCount = res.getHeight() / Values.RES_TILE_HEIGHT;
+            //第一行是用到的瓦片集文件
+            String line = br.readLine();//第一行是瓦片集文件名
+            String tileSetName = "map_config/" + line + ".png";
+            tileSet = Anim.readBitmap(tileSetName);
+            resWidthTileCount = tileSet.getWidth() / Values.RES_TILE_WIDTH;
+            resHeightTileCount = tileSet.getHeight() / Values.RES_TILE_HEIGHT;
 
             //第二行是地图高和宽的格子数
             line = br.readLine();
@@ -71,13 +79,13 @@ public class Map {
             mapWidth = mapWidthTileCount * Values.MAP_TILE_WIDTH;///地图总像素宽度
             mapHeight = mapHeightTileCount * Values.MAP_TILE_HEIGHT;//地图总像素高度
 
-            //之后是地图每个格子在图集中的序号
-            tileIndex = new int[mapHeightTileCount][mapWidthTileCount];
+            //之后是地图每个格子在瓦片集中的序号
+            tileIndexes = new int[mapHeightTileCount][mapWidthTileCount];
             String[] values;
             for (int i = 0; i < mapHeightTileCount && (line = br.readLine()) != null; i++) {
                 values = line.split(" ");
                 for (int j = 0; j < values.length; j++)
-                    tileIndex[i][j] = Integer.parseInt(values[j]);
+                    tileIndexes[i][j] = Integer.parseInt(values[j]);
             }
             is.close();
         } catch (Exception e){
@@ -93,13 +101,13 @@ public class Map {
         try {
             String line;
             String[] values;
-            is = Values.CONTEXT.getAssets().open("map_config/" + mapName + ".terrain");
+            is = Values.CONTEXT.getAssets().open("map_config/" + mapName + ".ter");
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            terrain = new int[mapHeightTileCount][mapWidthTileCount];
+            terrainIndexes = new int[mapHeightTileCount][mapWidthTileCount];
             for (int i = 0; i < mapHeightTileCount && (line = br.readLine()) != null; i++) {
                 values = line.split(" ");
                 for (int j = 0; j < values.length; j++)
-                    terrain[i][j] = Integer.parseInt(values[j]);
+                    terrainIndexes[i][j] = Integer.parseInt(values[j]);
             }
             is.close();
         } catch (Exception e){
@@ -123,7 +131,7 @@ public class Map {
                     continue;//不画屏幕外的地图块
                 //算出要绘制的地图块左上角在屏幕上的像素坐标
                 int [] xyPos = new int[]{j * Values.MAP_TILE_WIDTH + xyOffset[0], i * Values.MAP_TILE_HEIGHT + xyOffset[1]};
-                drawMapTile(tileIndex[i][j], canvas, paint, res, xyPos);
+                drawMapTile(tileIndexes[i][j], canvas, paint, tileSet, xyPos);
             }
         }
     }
@@ -184,22 +192,22 @@ public class Map {
     }
 
     public int getTerrain(int[] xy) {
-        return terrain[xy[1]][xy[0]];
+        return terrainIndexes[xy[1]][xy[0]];
     }
 
     public void setTerrain(int[][] terrain) {
-        Map.terrain = terrain;
+        Map.terrainIndexes = terrain;
     }
 
     public int[][] getMap() {
-        return tileIndex;
+        return tileIndexes;
     }
 
     public void setMap(int[][] map) {
-        tileIndex = map;
+        tileIndexes = map;
     }
 
     public int[][] getTerrain() {
-        return terrain;
+        return terrainIndexes;
     }
 }

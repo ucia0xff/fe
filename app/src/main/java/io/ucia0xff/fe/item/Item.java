@@ -1,32 +1,30 @@
 package io.ucia0xff.fe.item;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.InputStream;
-import java.util.List;
 
 import io.ucia0xff.fe.Values;
-import io.ucia0xff.fe.ability.Ability;
+//import io.ucia0xff.fe.ability.Ability;
 import io.ucia0xff.fe.anim.Anim;
 
 public class Item {
 
-    private String key;//物品标识
-    private int type;//物品类型
-    private String name;//物品名称
-    private String info;//物品说明
-    private Bitmap icon;//物品图标
+    //基本信息
+    private String key;//道具标识
+    private int type;//道具类型
+    private String name;//道具名称
+    private String info;//道具说明
+    private Bitmap icon;//道具图标
     private int uses;//耐久
-
     private boolean canUse;//可否使用
-    private boolean canEquip;//可否装备
-    private int dmgType;//伤害类型
+    private boolean canEquip;//可否装备，可装备的是武器，武器才有下面的数据
 
-    //武器的面板数据
+    //武器数据
+    private int dmgType;//伤害类型
     private int lv;//武器熟练度等级
     private int atk;//攻击
     private int hit;//命中
@@ -34,7 +32,7 @@ public class Item {
     private int crt;//必杀
     private int[] range;//射程
     private int exp;//使用后获得的武器熟练度
-    protected List<Ability> abilities;//物品能力
+//    protected List<Ability> abilities;//道具能力
 
 
     public Item(String itemName) {
@@ -59,7 +57,7 @@ public class Item {
                         info = parser.nextText().trim();
                     } else if ("icon".equals(parser.getName())) {
                         String fileName = parser.nextText();
-                        icon = (fileName.trim().length() > 0) ? Anim.readBitMap("item_icon/" + fileName) : null;
+                        icon = (fileName.trim().length() > 0) ? Anim.readBitmap("item_icon/" + fileName) : null;
                     } else if ("uses".equals(parser.getName())){
                         uses = Integer.parseInt(parser.nextText());
                     } else if ("can-use".equals(parser.getName())){
@@ -83,7 +81,6 @@ public class Item {
                         range = new int[2];
                         range[0] = Integer.parseInt(str[0]);
                         range[1] = Integer.parseInt(str[1]);
-//                        Log.d("ITEM_INFO", "射程" + range[0] + "~" + range[1]);
                     } else if ("exp".equals(parser.getName()) && canEquip){
                         exp = Integer.parseInt(parser.nextText());
                     }
@@ -137,13 +134,13 @@ public class Item {
         this.icon = icon;
     }
 
-    public List<Ability> getAbilities() {
+/*    public List<Ability> getAbilities() {
         return abilities;
-    }
+    }*/
 
-    public void setAbilities(List<Ability> abilities) {
+/*    public void setAbilities(List<Ability> abilities) {
         this.abilities = abilities;
-    }
+    }*/
 
     public int getUses() {
         return uses;

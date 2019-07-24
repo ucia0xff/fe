@@ -6,8 +6,6 @@ import android.graphics.Paint;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import io.ucia0xff.fe.Paints;
 import io.ucia0xff.fe.R;
@@ -15,6 +13,7 @@ import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.anim.Anim;
 import io.ucia0xff.fe.career.Career;
 import io.ucia0xff.fe.item.Item;
+import io.ucia0xff.fe.util.RangeHelper;
 
 public class ActorAction {
     public static final String[] ACTIONS = {"攻击", "物品", "待机"};
@@ -25,12 +24,12 @@ public class ActorAction {
     public static final int ACTION_ITEMS = 1;
     public static final int ACTION_STANDBY = 2;
 
-    private ActorMove move;
+    private RangeHelper move;
     private Actor srcActor;
     private Career career;
     private Item equipedWeapon;
 
-    private List<Actor> targetList;
+    private ArrayList<Actor> targetList;
 
     private int[] startXY = {0,0};//行动选项显示起始坐标
     private int actionIndex;//选择的选项
@@ -47,9 +46,9 @@ public class ActorAction {
     private int crt1;
     private int crt2;
 
-    public ActorAction(ActorMove move) {
+    public ActorAction(RangeHelper move) {
         this.move = move;
-        bg = Anim.readBitMap(R.drawable.bg_actor_action);
+        bg = Anim.readBitmap(R.drawable.bg_actor_action);
         targetList = new ArrayList<>();
     }
 
@@ -131,18 +130,19 @@ public class ActorAction {
         return targetList.get(index);
     }
 
-    public List<Actor> getTargetList() {
+    public ArrayList<Actor> getTargetList() {
         setTargetList();
         return targetList;
     }
 
+    //计算行动目标列表
     public void setTargetList() {
         targetList.clear();
         equipedWeapon = srcActor.getEquipedWeapon();
         if (equipedWeapon == null)
             return;
-        ActorMove.NodeList attackRange = move.getAttackRange(srcActor);
-        for (ActorMove.Node node : attackRange) {
+        RangeHelper.NodeList attackRange = move.getAttackRange(srcActor);
+        for (RangeHelper.Node node : attackRange) {
             Actor actor = Actors.getActor(node.getXy());
             if (actor != null) {//则判断该节点上有没有角色存在
                 switch (srcActor.getParty()) {//如果有，则判断两者的阵营关系
@@ -180,17 +180,17 @@ public class ActorAction {
         startY+=rowStep;
         canvas.drawText("|伤害|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
         canvas.drawText(""+dmg1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
-        canvas.drawText(""+dmg2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+        canvas.drawText(actor2.isCanAttack()?""+dmg2:"--", Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
 
         startY+=rowStep;
         canvas.drawText("|命中|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
         canvas.drawText(""+hit1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
-        canvas.drawText(""+hit2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+        canvas.drawText(actor2.isCanAttack()?""+hit2:"--", Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
 
         startY+=rowStep;
         canvas.drawText("|必杀|", Values.SCREEN_WIDTH/2, startY, Paints.paints.get("battle_info_center"));
         canvas.drawText(""+crt1, Values.SCREEN_WIDTH/2 - margin, startY, Paints.paints.get("battle_info_right"));
-        canvas.drawText(""+crt2, Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
+        canvas.drawText(actor2.isCanAttack()?""+crt2:"--", Values.SCREEN_WIDTH/2 + margin, startY, Paints.paints.get("battle_info_left"));
     }
 
     public void setBattleInfo(Actor actor1, Actor actor2) {
@@ -209,7 +209,7 @@ public class ActorAction {
         dmg2 = dmg2<0?0:dmg2;
 
         hit1=actor1.getHit() - actor2.getAvd();
-        hit1 = hit1>100?100:hit2;
+        hit1 = hit1>100?100:hit1;
         hit1 = hit1<0?0:hit1;
         hit2=actor2.getHit() - actor1.getAvd();
         hit2 = hit2>100?100:hit2;
@@ -223,18 +223,6 @@ public class ActorAction {
         crt2 = crt2<0?0:crt2;
     }
 
-    public void battle(Actor actor1, Actor actor2) {
-        setBattleInfo(actor1, actor2);
-        Random random = new Random();
-        int hit = 0,crt = 0;
-        if ((hit = random.nextInt(100)) < hit1) {
-            if ((crt = random.nextInt(100)) < crt1)
-                actor2.injured(dmg1);
-            else
-                actor2.injured(dmg1 * 3);
-        }
-        Log.d("BATTLE_INFO", "命中随机数："+hit+"，必杀随机数："+crt);
-    }
 
     public Actor getSrcActor() {
         return srcActor;

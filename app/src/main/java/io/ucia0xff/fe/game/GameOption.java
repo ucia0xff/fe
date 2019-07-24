@@ -25,7 +25,7 @@ public class GameOption {
     private Bitmap bg;
 
     public GameOption() {
-        bg = Anim.readBitMap(R.drawable.bg_actor_action);
+        bg = Anim.readBitmap(R.drawable.bg_actor_action);
     }
 
     //显示行动选项

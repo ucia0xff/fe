@@ -15,22 +15,16 @@ public class CursorAnims {
     public static Map<String, CursorAnim> cursorAnims = new HashMap<String, CursorAnim>();
 
     static {
-        bitmap = Anim.readBitMap(R.drawable.cursor);
+        //光标动画-动态
+        bitmap = Anim.readBitmap(R.drawable.cursor);
         bitmaps = Anim.splitBitmap(bitmap, 1, 2, 32);
-        cursorAnim = new CursorAnim(bitmaps, true);
+        cursorAnim = new CursorAnim(bitmaps);
         cursorAnim.setDurations(new int[]{200, 300});
         cursorAnims.put(Values.CURSOR_DYNAMIC, cursorAnim);
 
+        //光标动画-静态
         bitmaps = Anim.splitBitmap(bitmap, 3, 1, 32);
-        cursorAnim = new CursorAnim(bitmaps, true);
+        cursorAnim = new CursorAnim(bitmaps);
         cursorAnims.put(Values.CURSOR_STATIC, cursorAnim);
-
-        bitmaps = Anim.splitBitmap(bitmap, 4, 1, 32);
-        cursorAnim = new CursorAnim(bitmaps, true);
-        cursorAnims.put(Values.CURSOR_ALLOWED, cursorAnim);
-
-        bitmaps = Anim.splitBitmap(bitmap, 5, 1, 32);
-        cursorAnim = new CursorAnim(bitmaps, true);
-        cursorAnims.put(Values.CURSOR_FORBIDEN, cursorAnim);
     }
 }

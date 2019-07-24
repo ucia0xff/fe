@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actor>
+    <!--配置信息-->
+    <party>2</party><!--阵营，0我军，1友军，2敌军-->
+    <xy>15,16</xy><!--坐标，以坐上角格子为0,0-->
+
+    <!--角色信息-->
+    <actor-key>Enemy_0_0</actor-key><!--角色标识-->
+    <career-key>Fighter</career-key><!--职业标识-->
+    <name>古拉德兵</name><!--角色名-->
+    <info>大陆最强国， 古拉德帝国的士兵。</info><!--角色说明-->
+    <face></face><!--角色头像，不写则使用职业头像-->
+    <affin></affin><!--相性，不写和0无，1"炎"，2"雷"，3"风"，4"冰"，5"暗"，6"光"，7"理"-->
+
+    <!--角色能力修正（相对于职业初始能力，负数为降低，正数为提高，不写和0为不变）-->
+    <adj-lv>1</adj-lv><!--等级-->
+    <adj-mhp>2</adj-mhp><!--最大HP-->
+    <adj-str></adj-str><!--力量-->
+    <adj-mag></adj-mag><!--魔力-->
+    <adj-skl>-1</adj-skl><!--技术-->
+    <adj-spd>-3</adj-spd><!--速度-->
+    <adj-luc></adj-luc><!--幸运-->
+    <adj-def>3</adj-def><!--守备-->
+    <adj-res></adj-res><!--魔防-->
+    <adj-mov></adj-mov><!--移动-->
+    <adj-con></adj-con><!--体格-->
+
+    <!--角色成长率，不写则使用职业成长率-->
+    <grow-mhp>60</grow-mhp>
+    <grow-str>20</grow-str>
+    <grow-mag>15</grow-mag>
+    <grow-skl>30</grow-skl>
+    <grow-spd>35</grow-spd>
+    <grow-luc>25</grow-luc>
+    <grow-def>15</grow-def>
+    <grow-res>15</grow-res>
+
+    <!--武器熟练度，不写则使用职业武器熟练度-->
+    <exp-swd></exp-swd>
+    <exp-lan></exp-lan>
+    <exp-axe></exp-axe>
+    <exp-bow></exp-bow>
+    <exp-stf></exp-stf>
+    <exp-anm></exp-anm>
+    <exp-lgt></exp-lgt>
+    <exp-drk></exp-drk>
+
+    <items>IronAxe</items>
+</actor>

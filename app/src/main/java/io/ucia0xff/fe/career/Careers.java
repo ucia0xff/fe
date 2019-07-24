@@ -8,10 +8,12 @@ public class Careers {
     public static Map<String, Career> careers = new HashMap<String, Career>();
 
     static {
-        career = new Career("SisterNatasha");
+        career = new Career("Lord");
         careers.put(career.getKey(), career);
-//        career = new Career("MautheDog");
-//        careers.put(career.getKey(), career);
+        career = new Career("Paladin");
+        careers.put(career.getKey(), career);
+        career = new Career("Fighter");
+        careers.put(career.getKey(), career);
     }
 
     public static Career getCareer(String careerKey) {
@@ -21,5 +23,9 @@ public class Careers {
             }
         }
         return null;
+    }
+
+    public static void addCareer(Career career) {
+        careers.put(career.getKey(), career);
     }
 }

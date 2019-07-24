@@ -5,8 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import java.util.Arrays;
-
 import io.ucia0xff.fe.Paints;
 import io.ucia0xff.fe.R;
 import io.ucia0xff.fe.Values;
@@ -19,10 +17,10 @@ public class ActorInfo {
 
     private Actor actor;
     private Career career;
-    private Item equipedWeapon;
 
     //背景图片
-    private Bitmap bg;
+    private Bitmap bgBrief;//简略信息的背景
+    private Bitmap bgDetail;//详细信息的背景
 
     //图标
     private Bitmap mounts;
@@ -34,39 +32,103 @@ public class ActorInfo {
     private int nowPage = 0;
 
     //源图像要显示区域
-    private Rect bgSrc;
+    private Rect bgBriefSrc;
+    private Rect bgDetailSrc;
     private Rect faceSrc;
 
     //绘制在画布上的区域
-    private Rect bgDst;
-    private Rect faceDst;//绘制头像的区域
-    private Rect basicDst;//绘制部分信息的区域
+    private Rect bgBriefDst;//绘制简略信息面板的区域
+    private Rect bgDetailDst;//绘制详细信息面板的区域
+    private Rect faceBriefDst;//详细信息面板上绘制头像的区域
+    private Rect faceDetailDst;//详细信息面板上绘制头像的区域
+    private Rect basicDst;//详细信息面板上绘制基本信息的区域
 
     //构造方法
     public ActorInfo() {
-        bg = Anim.readBitMap(R.drawable.bg_actor_info);
-        bgSrc = new Rect(0, 0, bg.getWidth(), bg.getHeight());
-        bgDst = new Rect(0, 0, Values.SCREEN_WIDTH, Values.SCREEN_HEIGHT);
+        bgBrief = Anim.readBitmap(R.drawable.bg_actor_info_brief);
+        bgBriefSrc = new Rect(0, 0, bgBrief.getWidth(), bgBrief.getHeight());
+        bgBriefDst = new Rect(0, 0, 5*Values.MAP_TILE_WIDTH, 3*Values.MAP_TILE_HEIGHT);
+
+        bgDetail = Anim.readBitmap(R.drawable.bg_actor_info_detail);
+        bgDetailSrc = new Rect(0, 0, bgDetail.getWidth(), bgDetail.getHeight());
+        bgDetailDst = new Rect(0, 0, Values.SCREEN_WIDTH, Values.SCREEN_HEIGHT);
 
         faceSrc = new Rect(0, 0, Values.RES_FACE_WIDTH, Values.RES_FACE_HEIGHT);
-        faceDst = new Rect(0, 0, Values.SCREEN_WIDTH / 2, Values.SCREEN_WIDTH / 2);
+        faceBriefDst = new Rect(0, 0, 2*Values.MAP_TILE_WIDTH, 2*Values.MAP_TILE_HEIGHT);
+        faceDetailDst = new Rect(0, 0, Values.SCREEN_WIDTH / 2, Values.SCREEN_WIDTH / 2);
 
         basicDst = new Rect(Values.SCREEN_WIDTH / 2, 0, Values.SCREEN_WIDTH, Values.SCREEN_WIDTH / 2);
 
-        mounts = Anim.readBitMap(R.drawable.icon_mounts);
-        affins = Anim.readBitMap(R.drawable.icon_affins);
-        weapons = Anim.readBitMap(R.drawable.icon_weapons);
+        mounts = Anim.readBitmap(R.drawable.icon_mounts);
+        affins = Anim.readBitmap(R.drawable.icon_affins);
+        weapons = Anim.readBitmap(R.drawable.icon_weapons);
     }
 
-    //显示角色信息面板
-    public void display(Canvas canvas, Paint paint) {
-        canvas.drawBitmap(bg, bgSrc, bgDst, paint);//背景
+    //显示角色简略信息
+    /**
+     * 显示地形信息
+     * @param canvas
+     * @param paint
+     * @param isLeft 光标所在的格子是否在屏幕左边
+     */
+    public void show(Canvas canvas, Paint paint, Boolean isLeft) {
+        if (actor==null || canvas==null) return;
+        if (isLeft) {//光标在屏幕左边，则在屏幕右边显示角色简略信息
+            bgBriefDst.offsetTo(Values.SCREEN_WIDTH - bgBriefDst.width(), 0);
+            faceBriefDst.offsetTo( bgBriefDst.left + (int) (6.0 / bgBriefSrc.width() * bgBriefDst.width()), (int) (8.0 / bgBriefSrc.height()*bgBriefDst.height()));
+        }
+        else {//光标在屏幕右边，则在屏幕左边显示角色简略信息
+            bgBriefDst.offsetTo(0, 0);
+            faceBriefDst.offsetTo( (int) (6.0 / bgBriefSrc.width() * bgBriefDst.width()), (int) (8.0 / bgBriefSrc.height()*bgBriefDst.height()));
+        }
+
+        //背景
+        canvas.drawBitmap(bgBrief, bgBriefSrc, bgBriefDst, paint);
+
+        //头像
+        canvas.drawBitmap(actor.getFace(), faceSrc, faceBriefDst, paint);
+
+        //角色名
+        String text = actor.getName();
+        int startX = ((bgBriefDst.right - (int) (5.0 / bgBriefSrc.width() * bgBriefDst.width()) - faceBriefDst.right) / 2) + faceBriefDst.right;
+        canvas.drawText(text, startX, bgBriefDst.height() / 3, Paints.paints.get("actor_name"));
+
+        //LV、Exp
+        text = "LV  E  ";
+        canvas.drawText(text, startX, bgBriefDst.height() / 5 * 3, Paints.paints.get("lv_exp_hp"));
+        int num = actor.getLV();
+        text = (num > 9 ? "  " : "   ") + num + "   ";
+        canvas.drawText(text, startX, bgBriefDst.height() / 5 * 3, Paints.paints.get("lv_exp_hp_num_blue"));
+        num = actor.getExp();
+        text = (num > 9 ? "     " : "      ") + num;
+        canvas.drawText(text, startX, bgBriefDst.height() / 5 * 3, Paints.paints.get("lv_exp_hp_num_blue"));
+
+        //HP、MaxHP
+        int startY = bgBriefDst.height() - (int) (9.0 / bgBriefSrc.height() * bgBriefDst.height());
+        text = "HP  /  ";
+        canvas.drawText(text, startX, startY, Paints.paints.get("lv_exp_hp"));
+        num = actor.getHP();
+        text = (num > 99 ? "  --   " : num > 9 ? "  " + num + "   " : "   " + num + "   ");
+        if (actor.getHP() < actor.getMHP() * 0.3)
+            canvas.drawText(text, startX, startY, Paints.paints.get("lv_exp_hp_num_red"));
+        else if (actor.getHP() < actor.getMHP() * 0.7)
+            canvas.drawText(text, startX, startY, Paints.paints.get("lv_exp_hp_num_yellow"));
+        else
+            canvas.drawText(text, startX, startY, Paints.paints.get("lv_exp_hp_num_blue"));
+        num = actor.getMHP();
+        text = (num > 99 ? "     --" : num > 9 ? "     " + num : "      " + num);
+        canvas.drawText(text, startX, startY, Paints.paints.get("lv_exp_hp_num_green"));
+    }
+
+    //显示角色详细信息
+    public void showDetail(Canvas canvas, Paint paint) {
+        canvas.drawBitmap(bgDetail, bgDetailSrc, bgDetailDst, paint);//背景
 
         String text;
         int num;
 
         //头像
-        canvas.drawBitmap(actor.getFace(), faceSrc, faceDst, paint);
+        canvas.drawBitmap(actor.getFace(), faceSrc, faceDetailDst, paint);
 
 
         //角色名
@@ -75,50 +137,50 @@ public class ActorInfo {
 
        //职业名
         text = Careers.getCareer(actor.getCareerKey()).getName();
-        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDst.height()/ 5 * 2, Paints.paints.get("career_name"));
+        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDetailDst.height()/ 5 * 2, Paints.paints.get("career_name"));
 
         //LV、Exp
         text = "LV  E  ";
-        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDst.height() / 5 * 3, Paints.paints.get("lv_exp_hp"));
+        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDetailDst.height() / 5 * 3, Paints.paints.get("lv_exp_hp"));
         num = actor.getLV();
         text = (num > 9 ? "  " : "   ") + num + "   ";
-        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDst.height() / 5 * 3, Paints.paints.get("lv_exp_hp_num_blue"));
+        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDetailDst.height() / 5 * 3, Paints.paints.get("lv_exp_hp_num_blue"));
         num = actor.getExp();
         text = (num > 9 ? "     " : "      ") + num;
-        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDst.height() / 5 * 3, Paints.paints.get("lv_exp_hp_num_blue"));
+        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDetailDst.height() / 5 * 3, Paints.paints.get("lv_exp_hp_num_blue"));
 
         //HP、MaxHP
         text = "HP  /  ";
-        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDst.height() / 5 * 4, Paints.paints.get("lv_exp_hp"));
+        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDetailDst.height() / 5 * 4, Paints.paints.get("lv_exp_hp"));
         num = actor.getHP();
         text = (num > 99 ? "  --   " : num > 9 ? "  " + num + "   " : "   " + num + "   ");
         if (actor.getHP() < actor.getMHP() * 0.3)
-            canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDst.height() / 5 * 4, Paints.paints.get("lv_exp_hp_num_red"));
+            canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDetailDst.height() / 5 * 4, Paints.paints.get("lv_exp_hp_num_red"));
         else if (actor.getHP() < actor.getMHP() * 0.7)
-            canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDst.height() / 5 * 4, Paints.paints.get("lv_exp_hp_num_yellow"));
+            canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDetailDst.height() / 5 * 4, Paints.paints.get("lv_exp_hp_num_yellow"));
         else
-            canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDst.height() / 5 * 4, Paints.paints.get("lv_exp_hp_num_blue"));
+            canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDetailDst.height() / 5 * 4, Paints.paints.get("lv_exp_hp_num_blue"));
         num = actor.getMHP();
         text = (num > 99 ? "     --" : num > 9 ? "     " + num : "      " + num);
-        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDst.height() / 5 * 4, Paints.paints.get("lv_exp_hp_num_green"));
+        canvas.drawText(text, Values.SCREEN_WIDTH / 4 * 3, faceDetailDst.height() / 5 * 4, Paints.paints.get("lv_exp_hp_num_green"));
 
         //页面指示
         canvas.drawText(nowPage + 1 + "/" + allPage, Values.SCREEN_WIDTH, basicDst.bottom /5 * 6, Paints.paints.get("page_indicator"));
 
         switch (nowPage) {
             case 0:
-                displayData(canvas, paint);
+                showData(canvas, paint);
                 break;
             case 1:
-                displayItems(canvas, paint);
+                showItems(canvas, paint);
                 break;
             case 2:
-                displayLevel(canvas, paint);
+                showLevel(canvas, paint);
                 break;
         }
     }
 
-    public void displayData(Canvas canvas, Paint paint) {
+    public void showData(Canvas canvas, Paint paint) {
         int leftNameStartX = Values.SCREEN_WIDTH / 20;//左侧各项能力名称显示的起始坐标
         int leftBarStartX = leftNameStartX + (int) Paints.paints.get("ability_name").measureText("能力 ");//左侧各项能力数值条显示的起始坐标
         int rightNameStartX = leftNameStartX + Values.SCREEN_WIDTH / 2;//右侧各项能力名称显示的起始坐标
@@ -187,8 +249,10 @@ public class ActorInfo {
         canvas.drawLine(leftBarStartX, startY - 16, nowValue * valueStep + leftBarStartX, startY - 16, Paints.paints.get("ability_bar_yellow"));
         canvas.drawText(nowValue + "", 10* valueStep+leftBarStartX, startY, Paints.paints.get("ability_value"));
         //第四行第二列坐骑
+        nowValue = Careers.getCareer(actor.getCareerKey()).getMount();
         canvas.drawText("坐骑", rightNameStartX, startY, Paints.paints.get("ability_name"));
-        canvas.drawBitmap(mounts, new Rect(actor.getMnt() * 32, 0, actor.getMnt() * 32 + 32, 32), new Rect(rightBarStartX, startY-60, rightBarStartX + 100, startY + 40), paint);
+//        canvas.drawBitmap(mounts, new Rect(nowValue * 32, 0, nowValue * 32 + 32, 32), new Rect(rightBarStartX, startY-60, rightBarStartX + 100, startY + 40), paint);
+        canvas.drawText(Values.MOUNT_NAME[nowValue], 10* valueStep+rightBarStartX, startY, Paints.paints.get("ability_value"));
 
         //第五行第一列速度
         startY += rowStep;
@@ -227,10 +291,11 @@ public class ActorInfo {
         canvas.drawLine(leftBarStartX, startY - 16, maxValue * valueStep + leftBarStartX, startY - 16, Paints.paints.get("ability_bar_blank"));
         canvas.drawLine(leftBarStartX, startY - 16, nowValue * valueStep + leftBarStartX, startY - 16, Paints.paints.get("ability_bar_yellow"));
         canvas.drawText(nowValue + "", 10* valueStep+leftBarStartX, startY, Paints.paints.get("ability_value"));
-        //第七行第二列属性
-        canvas.drawText("属性", rightNameStartX, startY, Paints.paints.get("ability_name"));
-        canvas.drawBitmap(affins, new Rect(actor.getAff() * 16, 0, actor.getAff() * 16 + 16, 16), new Rect(rightBarStartX, startY - 60, rightBarStartX + 100, startY + 40), paint);
-
+        //第七行第二列相性
+        nowValue = actor.getAffin();
+        canvas.drawText("相性", rightNameStartX, startY, Paints.paints.get("ability_name"));
+//        canvas.drawBitmap(affins, new Rect(actor.getAffin() * 16, 0, actor.getAffin() * 16 + 16, 16), new Rect(rightBarStartX, startY - 60, rightBarStartX + 100, startY + 40), paint);
+        canvas.drawText(Values.AFFIN_NAME[nowValue], 10* valueStep+rightBarStartX, startY, Paints.paints.get("ability_value"));
 
         //第八行第一列魔防
         startY += rowStep;
@@ -247,7 +312,7 @@ public class ActorInfo {
 
 
     //显示物品和装备信息
-    public void displayItems(Canvas canvas, Paint paint) {
+    public void showItems(Canvas canvas, Paint paint) {
         int leftIconStartX = Values.SCREEN_WIDTH / 20;//左侧各种物品图标显示的起始坐标
         int leftNameStartX = leftIconStartX+100;//左侧文字显示的起始坐标
         int leftNameStopX = Values.SCREEN_WIDTH / 10 * 4;//左侧文字显示的终止坐标
@@ -324,7 +389,7 @@ public class ActorInfo {
         canvas.drawText(""+actor.getCrt(), rightNameStopX, startY, Paints.paints.get("item_uses_blue"));
     }
 
-    public void displayLevel(Canvas canvas, Paint paint) {
+    public void showLevel(Canvas canvas, Paint paint) {
 
         int leftIconStartX = Values.SCREEN_WIDTH / 20;//左侧各种武器图标显示的起始坐标
         int leftNameStartX = leftIconStartX+100;//左侧各种武器名称显示的起始坐标
@@ -523,7 +588,9 @@ public class ActorInfo {
 
     public void setActor(Actor actor) {
         this.actor = actor;
-        setCareer(Careers.getCareer(actor.getCareerKey()));
+        if (actor!=null) {
+            setCareer(Careers.getCareer(actor.getCareerKey()));
+        }
     }
 
     public Career getCareer() {

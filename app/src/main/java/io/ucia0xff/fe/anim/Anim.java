@@ -27,10 +27,10 @@ public abstract class Anim {
     public Bitmap[] frames = null;
 
     //是否循环播放
-    public boolean isLoop = false;
+    public boolean loop = true;
 
     //是否播放结束
-    public boolean isEnd = false;
+    public boolean endFlag = false;
 
     //每一帧的持续时间
     public int durations[];
@@ -65,22 +65,20 @@ public abstract class Anim {
 
     // 构造方法
     public Anim(){}
-    public Anim(int[] resId, boolean isLoop) {
+    public Anim(int[] resId) {
         frameCount = resId.length;
         frames = new Bitmap[frameCount];
         durations = new int[frameCount];
         setDurations(defaultDuration);
         for (int i = 0; i < frameCount; i++) {
-            frames[i] = readBitMap(resId[i]);
+            frames[i] = readBitmap(resId[i]);
         }
-        this.isLoop = isLoop;
     }
-    public Anim(Bitmap[] frames, boolean isLoop) {
+    public Anim(Bitmap[] frames) {
         frameCount = frames.length;
         durations = new int[frameCount];
         setDurations(defaultDuration);
         this.frames = frames;
-        this.isLoop = isLoop;
     }
 
 
@@ -98,19 +96,19 @@ public abstract class Anim {
      * @param canvas
      * @param paint
      */
-    protected void drawFrames(Canvas canvas, Paint paint) {
-        if (!isEnd && canvas!=null) {
+    public void drawFrames(Canvas canvas, Paint paint) {
+        if (!endFlag && canvas!=null) {
             canvas.drawBitmap(frames[nowFrame], src, dst, paint);
-            long time = System.currentTimeMillis();
-            if (time - lastTime > durations[nowFrame]) {
+            long nowTime = System.currentTimeMillis();
+            if (nowTime - lastTime > durations[nowFrame]) {
                 nowFrame++;
-                lastTime = time;
+                lastTime = nowTime;
                 if (nowFrame >= frameCount) {
-                    //标志动画播放结束
-                    isEnd = true;
-                    if (isLoop) {
+                    //动画播放结束
+                    endFlag = true;
+                    if (loop) {
                         //设置循环播放
-                        isEnd = false;
+                        endFlag = false;
                         nowFrame = 0;
                     }
                 }
@@ -123,7 +121,7 @@ public abstract class Anim {
      * @param resId 资源ID
      * @return
      */
-    public static Bitmap readBitMap(int resId) {
+    public static Bitmap readBitmap(int resId) {
         try {
             BitmapFactory.Options opt = new BitmapFactory.Options();
             opt.inPreferredConfig = Bitmap.Config.ARGB_8888;//色彩模式
@@ -142,7 +140,7 @@ public abstract class Anim {
      * @param fileName assets路径下的的文件名，如faces/Unknown.png
      * @return
      */
-    public static Bitmap readBitMap(String fileName) {
+    public static Bitmap readBitmap(String fileName) {
         try {
             BitmapFactory.Options opt = new BitmapFactory.Options();
             opt.inPreferredConfig = Bitmap.Config.ARGB_8888;

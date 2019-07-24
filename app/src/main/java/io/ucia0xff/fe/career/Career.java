@@ -6,9 +6,12 @@ import android.util.Xml;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.anim.Anim;
+import io.ucia0xff.fe.anim.CareerAnim;
 
 public class Career {
     //基本信息
@@ -16,7 +19,7 @@ public class Career {
     private String name;//职业名
     private String info;//职业说明
     private Bitmap face;//职业通用头像
-
+    private int mount = 0;//坐骑
     private int type = 0;//兵种类型
     private int moveSpd = 0;//移动速度
 
@@ -32,8 +35,6 @@ public class Career {
     private int initRes = 0;//魔防
     private int initMov = 0;//移动
     private int initCon = 0;//体格
-    private int initMnt = 0;//坐骑
-    private int initAff = 0;//属性
 
     //能力上限
     private int maxLV = 0;//等级上限
@@ -68,7 +69,7 @@ public class Career {
     private int initLgt = 0;//光
     private int initDrk = 0;//暗
 
-    //最大武器熟练度
+    //武器熟练度上限
     private int maxSwd = 0;//剑
     private int maxLan = 0;//枪
     private int maxAxe = 0;//斧
@@ -78,9 +79,11 @@ public class Career {
     private int maxLgt = 0;//光
     private int maxDrk = 0;//暗
 
-    public Career(String careerName) {
+    private Map<String, CareerAnim> careerAnims;//职业动画
+
+    public Career(String careerConfigFileName) {
         try {
-            InputStream in = Values.CONTEXT.getAssets().open("career_config/" + careerName +".xml");
+            InputStream in = Values.CONTEXT.getAssets().open("career_config/" + careerConfigFileName +".xml");
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(in, "UTF-8");
             //START_TAG, END_TAG, TEXT等等的节点
@@ -95,12 +98,14 @@ public class Career {
                     }else if ("info".equals(parser.getName())){
                         info = parser.nextText();
                     }else if ("face".equals(parser.getName())){
-                        String faceName = parser.nextText();
-                        if (faceName.trim().length() > 0) {
-                            face = Anim.readBitMap("faces/" + faceName);
+                        String faceFileName = parser.nextText();
+                        if (faceFileName.trim().length() > 0) {
+                            face = Anim.readBitmap("faces/" + faceFileName);
                         } else {
-                            face = Anim.readBitMap("faces/Unknown.png");
+                            face = Anim.readBitmap("faces/Unknown.png");
                         }
+                    }else if ("mount".equals(parser.getName())){
+                        mount = Integer.parseInt(parser.nextText());
                     }else if ("type".equals(parser.getName())){
                         type = Integer.parseInt(parser.nextText());
                     }else if ("move-spd".equals(parser.getName())){
@@ -127,10 +132,6 @@ public class Career {
                         initMov = Integer.parseInt(parser.nextText());
                     }else if ("init-con".equals(parser.getName())){
                         initCon = Integer.parseInt(parser.nextText());
-                    }else if ("init-mnt".equals(parser.getName())){
-                        initMnt = Integer.parseInt(parser.nextText());
-                    }else if ("init-aff".equals(parser.getName())){
-                        initAff = Integer.parseInt(parser.nextText());
                     }else if ("max-lv".equals(parser.getName())){
                         maxLV = Integer.parseInt(parser.nextText());
                     }else if ("max-mhp".equals(parser.getName())){
@@ -210,6 +211,66 @@ public class Career {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        initAnims();//职业动画
+    }
+
+    public void initAnims() {
+        careerAnims = new HashMap<>();
+        initAnims(Values.PARTY_PLAYER);
+        initAnims(Values.PARTY_ALLY);
+        initAnims(Values.PARTY_ENEMY);
+    }
+
+
+    public void initAnims(int PARTY) {
+        String party = Values.PARTY_NAME[PARTY];
+
+        Bitmap bitmap = Anim.readBitmap("career_anim/" + key + party + "Normal.png");
+        if (bitmap == null) return;//动画图片文件不存在
+
+        //职业动画-通常动画
+        Bitmap[] bitmaps = Anim.splitBitmap(bitmap, 1, 3, bitmap.getHeight() / 3);
+        CareerAnim careerAnim = new CareerAnim(bitmaps);
+        careerAnim.setDurations(400);
+        careerAnims.put(key + party + "Normal", careerAnim);
+
+        //职业动画-待机动画
+        bitmaps = Anim.toGreyBitmap(bitmaps);//静态动画帧转换成灰度得到待机动画帧
+        careerAnim = new CareerAnim(bitmaps);
+        careerAnim.setDurations(400);
+        careerAnims.put(key + party + "Standby", careerAnim);
+
+
+        bitmap = Anim.readBitmap("career_anim/" + key + party + "Move.png");
+        if (bitmap == null) return;//动画图片文件不存在
+
+        //职业动画-左移动画
+        bitmaps = Anim.splitBitmap(bitmap, 1, 4, bitmap.getHeight() / 12);
+        careerAnim = new CareerAnim(bitmaps);
+        careerAnim.setDurations(100);
+        careerAnims.put(key + party + "Left", careerAnim);
+
+        //职业动画-右移动画
+        bitmaps = Anim.toMirrorBitmap(bitmaps);//左移动画帧左右翻转得到右移动画帧
+        careerAnim = new CareerAnim(bitmaps);
+        careerAnim.setDurations(100);
+        careerAnims.put(key + party + "Right", careerAnim);
+
+        //职业动画-下移动画
+        bitmaps = Anim.splitBitmap(bitmap, 5, 4, bitmap.getHeight() / 12);
+        careerAnim = new CareerAnim(bitmaps);
+        careerAnim.setDurations(100);
+        careerAnims.put(key + party + "Down", careerAnim);
+
+        //职业动画-上移动画
+        bitmaps = Anim.splitBitmap(bitmap, 9, 4, bitmap.getHeight() / 12);
+        careerAnim = new CareerAnim(bitmaps);
+        careerAnim.setDurations(100);
+        careerAnims.put(key + party + "Up", careerAnim);
+    }
+
+    public CareerAnim getAnim(String animKey) {
+        return careerAnims.get(animKey);
     }
 
     public String getKey() {
@@ -280,12 +341,8 @@ public class Career {
         return initCon;
     }
 
-    public int getInitMnt() {
-        return initMnt;
-    }
-
-    public int getInitAff() {
-        return initAff;
+    public int getMount() {
+        return mount;
     }
 
     public int getMaxLV() {

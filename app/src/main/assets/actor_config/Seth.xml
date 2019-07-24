@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actor>
+    <!--配置信息-->
+    <party>0</party><!--阵营，0我军，1友军，2敌军-->
+    <xy>9,13</xy><!--坐标，以坐上角格子为0,0-->
+
+    <!--角色信息-->
+    <actor-key>Seth</actor-key><!--角色标识-->
+    <career-key>Paladin</career-key><!--职业标识-->
+    <name>塞思</name><!--角色名-->
+    <info>侍奉鲁内斯王国的年轻将军。 沉着冷静，有着敏锐的战略眼光。</info><!--角色说明-->
+    <face>Seth.png</face><!--角色头像，不写则使用职业头像-->
+    <affin>7</affin><!--相性，不写和0无，1"炎"，2"雷"，3"风"，4"冰"，5"暗"，6"光"，7"理"-->
+
+    <!--角色能力修正（相对于职业初始能力，负数为降低，正数为提高，不写和0为不变）-->
+    <adj-lv>1</adj-lv><!--等级-->
+    <adj-mhp>7</adj-mhp><!--最大HP-->
+    <adj-str>7</adj-str><!--力量-->
+    <adj-mag>4</adj-mag><!--魔力-->
+    <adj-skl>9</adj-skl><!--技术-->
+    <adj-spd>5</adj-spd><!--速度-->
+    <adj-luc>13</adj-luc><!--幸运-->
+    <adj-def>3</adj-def><!--守备-->
+    <adj-res>5</adj-res><!--魔防-->
+    <adj-mov></adj-mov><!--移动-->
+    <adj-con></adj-con><!--体格-->
+
+    <!--角色成长率，不写则使用职业成长率-->
+    <grow-mhp>85</grow-mhp>
+    <grow-str>50</grow-str>
+    <grow-mag>30</grow-mag>
+    <grow-skl>45</grow-skl>
+    <grow-spd>45</grow-spd>
+    <grow-luc>25</grow-luc>
+    <grow-def>40</grow-def>
+    <grow-res>30</grow-res>
+
+    <!--武器熟练度，不写则使用职业武器熟练度-->
+    <exp-swd>181</exp-swd>
+    <exp-lan>181</exp-lan>
+    <exp-axe></exp-axe>
+    <exp-bow></exp-bow>
+    <exp-stf></exp-stf>
+    <exp-anm></exp-anm>
+    <exp-lgt></exp-lgt>
+    <exp-drk></exp-drk>
+
+    <items>Javalin,SteelSword,SilverLance</items>
+</actor>

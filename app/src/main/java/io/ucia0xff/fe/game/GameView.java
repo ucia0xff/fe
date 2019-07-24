@@ -1,7 +1,6 @@
 package io.ucia0xff.fe.game;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -10,10 +9,15 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import io.ucia0xff.fe.Values;
 import io.ucia0xff.fe.actor.*;
-import io.ucia0xff.fe.anim.*;
 import io.ucia0xff.fe.map.*;
+import io.ucia0xff.fe.util.Cursor;
+import io.ucia0xff.fe.util.RangeHelper;
 
 public class GameView extends SurfaceView
         implements SurfaceHolder.Callback,
@@ -22,22 +26,22 @@ public class GameView extends SurfaceView
         GestureDetector.OnDoubleTapListener,
         Runnable {
 
-    public static int[] PARTIES;//场上所有阵营
+    public static int[] PARTY_INDEX;//场上所有阵营序号
     public static int PARTY_COUNT;//场上阵营总数
-    public static int NOW_PARTY;//当前行动的阵营
     public static int GAME_TURN = 1;//游戏进行的回合
     public static int TURN_PHASE = 0;//回合进行阶段
+    public static int NOW_PARTY;//当前行动阵营
     public static int GAME_CASE = Values.CASE_NORMAL;//游戏进行状态
-    public static java.util.Map<String, Actor> actors = null;//场上所有角色的列表
+    public static java.util.Map<String, ArrayList<Actor>> parties = null;//每个阵营角色列表
     public static Actor selectedActor = null;//当前角色
     public static Actor targetActor = null;//目标角色
     public Map map;//地图对象
-    public CursorAnim cursor;//鼠标动画
-    public MapInfo mapInfo;
-    public ActorMove move;
-    public ActorInfo actorInfo;
-    public ActorAction actorAction;
-    public GameOption gameOption;
+    public Cursor cursor;//光标
+    public Terrain terrain;//地形信息面板
+    public RangeHelper rangeHelper;//范围计算工具类
+    public ActorInfo actorInfo;//角色信息
+    public ActorAction actorAction;//行动选项
+    public GameOption gameOption;//游戏选项
 
     //画笔
     private Paint paint = null;
@@ -45,7 +49,7 @@ public class GameView extends SurfaceView
     //画布
     private Canvas canvas = null;
 
-    // 游戏主线程
+    // 游戏绘图线程
     private Thread thread = null;
 
     // 线程循环标志
@@ -72,27 +76,34 @@ public class GameView extends SurfaceView
 
     //光标在地图中的格子坐标
     public static int[] cursorXY = {0, 0};
-    public static int[] cursorLastXY = {0, 0};
 
+    //保存上一个格子坐标
+    public static int[] lastXY = {0, 0};
 
     //构造方法
     public GameView() {
         super(Values.CONTEXT);
         paint = new Paint();
-        paint.setTextSize(80);
-        paint.setColor(Color.WHITE);
-        actors = Actors.getActors();
-        setParties();
-        TURN_PHASE = 0;
-        NOW_PARTY = PARTIES[TURN_PHASE];
-        map = new Map("map1");
-        mapInfo = new MapInfo(map);
-        cursor = CursorAnims.cursorAnims.get(Values.CURSOR_DYNAMIC);
-        move = new ActorMove(map);
+        //地图
+        map = new Map();
+        map.readMap("map1");
+        //地形信息
+        terrain = new Terrain();
+        terrain.setMap(map);
+        //光标
+        cursor = new Cursor();
+        //范围工具
+        rangeHelper = new RangeHelper(map);
+        //角色信息
         actorInfo = new ActorInfo();
-        actorAction = new ActorAction(move);
+        //行动选项
+        actorAction = new ActorAction(rangeHelper);
+        //游戏选项
         gameOption = new GameOption();
 
+        setParties();
+        TURN_PHASE = 0;
+        NOW_PARTY = PARTY_INDEX[TURN_PHASE];
 
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
@@ -105,51 +116,77 @@ public class GameView extends SurfaceView
     //绘制游戏画面
     protected void Draw() {
         switch (GAME_CASE) {
-            case Values.CASE_NORMAL:
+            case Values.CASE_NORMAL://通常状态
                 map.drawMap(canvas, paint, xyOffset);
                 DrawActors(canvas, paint, xyOffset);
-                DrawCursor(canvas, paint, xyOffset);
-                mapInfo.show(canvas, paint, isLeft);
+                cursor.drawCursor(canvas, paint, xyOffset);
+                actorInfo.show(canvas, paint, isLeft);
+                terrain.show(canvas, paint, isLeft);
                 break;
-            case Values.CASE_BEFORE_MOVE:
+            case Values.CASE_BEFORE_MOVE://移动前状态，显示移动范围和攻击范围
                 map.drawMap(canvas, paint, xyOffset);
-                move.drawMoveRange(canvas, paint, xyOffset);
-                move.drawAllAttackRange(canvas, paint, xyOffset);
+                rangeHelper.drawMoveRange(canvas, paint, xyOffset);
+                rangeHelper.drawAttackRange(canvas, paint, xyOffset);
                 DrawActors(canvas, paint, xyOffset);
-                DrawCursor(canvas, paint, xyOffset);
+                cursor.drawCursor(canvas, paint, xyOffset);
                 break;
-            case Values.CASE_MOVING:
+            case Values.CASE_MOVING://移动中状态，播放移动动画
                 map.drawMap(canvas, paint, xyOffset);
-                if (!(selectedActor.move(move.getMovePath()))) {
+                if (selectedActor.move(rangeHelper.getMovePath())) {//移动结束
                     GAME_CASE = Values.CASE_AFTER_MOVE;
-                    move.setAttackRange(selectedActor.getXyInMapTile());
-                    actorAction.setSrcActor(selectedActor);
+                    rangeHelper.setAttackRangeAt(selectedActor.getXyInMapTile());//计算攻击范围
+                    actorAction.setSrcActor(selectedActor);//准备行动选项
                     Log.d("GAME_CASE", "AFTER_MOVE");
                 }
                 DrawActors(canvas, paint, xyOffset);
                 break;
-            case Values.CASE_AFTER_MOVE:
+            case Values.CASE_AFTER_MOVE://移动后状态，显示行动选项
                 map.drawMap(canvas, paint, xyOffset);
                 DrawActors(canvas, paint, xyOffset);
-                move.drawAttackRange(canvas, paint, xyOffset);
+                rangeHelper.drawAttackRangeAt(canvas, paint, xyOffset);
                 actorAction.show(canvas, paint);
                 break;
             case Values.CASE_BEFORE_ACT:
                 map.drawMap(canvas, paint, xyOffset);
                 DrawActors(canvas, paint, xyOffset);
-                move.drawAttackRange(canvas, paint, xyOffset);
-                DrawCursor(canvas, paint, xyOffset);
+//                rangeHelper.drawAttackRangeAt(canvas, paint, xyOffset);
+                cursor.drawCursor(canvas, paint, xyOffset);
                 actorAction.showBattleInfo(canvas, paint, selectedActor, targetActor);
                 break;
             case Values.CASE_ACTING:
                 map.drawMap(canvas, paint, xyOffset);
                 DrawActors(canvas, paint, xyOffset);
-                actorAction.battle(selectedActor, targetActor);
+                if (selectedActor.doAttack(targetActor)) {
+                    if (targetActor!=null && targetActor.isVisible()) {
+                        targetActor.doAttack(selectedActor);
+                    }
+                }
+                if ((selectedActor==null || !selectedActor.isVisible() || !selectedActor.isCanAttack()) &&
+                        (targetActor==null || !targetActor.isVisible() || !targetActor.isCanAttack())) {//双方攻击结束
+                    GAME_CASE = Values.CASE_AFTER_ACT;
+                    Log.d("GAME_CASE", "AFTER_ACT");
+                }
+                break;
+            case Values.CASE_AFTER_ACT:
+//                actorAction.battle(selectedActor, targetActor);
+                if (selectedActor!=null) { //角色自身未死亡
+                    if (targetActor!=null && targetActor.isVisible()) {
+                        selectedActor.gainExp(20);//未杀死敌人
+                    } else {
+                        selectedActor.gainExp(50);//杀死了敌人
+                        Actors.restore();
+                    }
+                    selectedActor.standby();
+                } else {
+                    Actors.restore();
+                }
+                selectedActor = Actors.getActor(cursor.getXy());
+                actorInfo.setActor(selectedActor);
                 GAME_CASE = Values.CASE_NORMAL;
                 Log.d("GAME_CASE", "NORMAL");
                 break;
             case Values.CASE_SHOW_ACTOR_INFO:
-                actorInfo.display(canvas, paint);
+                actorInfo.showDetail(canvas, paint);
                 break;
             case Values.CASE_SHOW_GAME_OPTIONS:
                 map.drawMap(canvas, paint, xyOffset);
@@ -161,25 +198,14 @@ public class GameView extends SurfaceView
 
     //显示地图上所有角色
     private void DrawActors(Canvas canvas, Paint paint, int[] xyOffset) {
-        for (Actor actor : actors.values()) {
-            if (actor.isVisible())
+        Iterator<Actor> iterator = Actors.actors.iterator();
+        while (iterator.hasNext()) {
+            Actor actor = iterator.next();
+            if (actor.isVisible()) {
                 actor.drawAnim(canvas, paint, xyOffset);
-            else
-                actors.remove(actor.getActorKey());
+            }
         }
     }
-
-    //显示光标
-    private void DrawCursor(Canvas canvas, Paint paint, int[] xyOffset) {
-        if (selectedActor == null || selectedActor.getParty() != Values.PARTY_PLAYER || selectedActor.isStandby()) {
-            cursor = CursorAnims.cursorAnims.get(Values.CURSOR_DYNAMIC);
-        } else {
-            cursor = CursorAnims.cursorAnims.get(Values.CURSOR_STATIC);
-            selectedActor.getCursor();
-        }
-        cursor.drawAnim(canvas, paint, cursorXY, xyOffset);
-    }
-
 
     //长按
     @Override
@@ -199,12 +225,8 @@ public class GameView extends SurfaceView
         xyInMapTile[0] = xyInMapPx[0] / Values.MAP_TILE_WIDTH;
         xyInMapTile[1] = xyInMapPx[1] / Values.MAP_TILE_HEIGHT;
 
-//        //保存光标当前坐标
-//        cursorLastXY[0] = cursorXY[0];
-//        cursorLastXY[1] = cursorXY[1];
         //光标移到新坐标
-        cursorXY[0] = xyInMapTile[0];
-        cursorXY[1] = xyInMapTile[1];
+        cursor.setXy(xyInMapTile);
 
         //长按点在屏幕哪个区域
         isLeft = xyInScrPx[0] < Values.SCREEN_WIDTH / 2;
@@ -213,11 +235,9 @@ public class GameView extends SurfaceView
         switch (GAME_CASE) {
             //通常状态
             case Values.CASE_NORMAL:
-                if (selectedActor != null)
-                    selectedActor.lostCursor();
-                selectedActor = Actors.getActor(cursorXY);
+                selectedActor = Actors.getActor(cursor.getXy());
                 if (selectedActor != null) {//长按点有角色，显示角色信息
-                    selectedActor.getCursor();
+                    cursor.setLastXy(selectedActor.getXyInMapTile());
                     actorInfo.setActor(selectedActor);
                     GAME_CASE = Values.CASE_SHOW_ACTOR_INFO;
                     Log.d("GAME_CASE", "SHOW_ACTOR_INFO");
@@ -225,8 +245,7 @@ public class GameView extends SurfaceView
                 break;
             //显示角色信息
             case Values.CASE_SHOW_ACTOR_INFO:
-                cursorXY[0] = selectedActor.getXyInMapTile()[0];
-                cursorXY[1] = selectedActor.getXyInMapTile()[1];
+                cursor.setXy(cursor.getLastXy());
                 GAME_CASE = Values.CASE_NORMAL;//长按返回通常状态
                 Log.d("GAME_CASE", "NORMAL");
                 break;
@@ -255,50 +274,39 @@ public class GameView extends SurfaceView
         xyInMapTile[1] = xyInMapPx[1] / Values.MAP_TILE_HEIGHT;
 
         //光标移到新坐标
-        cursorXY[0] = xyInMapTile[0];
-        cursorXY[1] = xyInMapTile[1];
+        cursor.setXy(xyInMapTile);
 
         //单击点在屏幕哪个区域
         isLeft = xyInScrPx[0] < Values.SCREEN_WIDTH / 2;
         isDown = xyInScrPx[1] > Values.SCREEN_HEIGHT / 2;
 
-        Log.d("XY_CLICK", cursorXY[0] + "," + cursorXY[1]);
+        Log.d("XY_CLICK", cursor.getXy()[0] + "," + cursor.getXy()[1]);
 
         switch (GAME_CASE) {
             //通常状态
             case Values.CASE_NORMAL:
-                if (selectedActor != null)
-                    selectedActor.lostCursor();
-                selectedActor = Actors.getActor(cursorXY);
-                if (selectedActor != null)
-                    selectedActor.getCursor();
+                selectedActor = Actors.getActor(cursor.getXy());
+                actorInfo.setActor(selectedActor);
                 Log.d("GAME_CASE", "NORMAL");
                 break;
             //移动前
             case Values.CASE_BEFORE_MOVE:
                 if (selectedActor.getParty() == Values.PARTY_PLAYER &&
-                        move.canMoveTo(cursorXY)) {//进入移动前状态的是我方角色，并且这次单击的坐标在可移动范围内
-                    targetActor = Actors.getActor(cursorXY);
+                        rangeHelper.canMoveTo(cursor.getXy())) {//进入移动前状态的是我方角色，并且这次单击的坐标在可移动范围内
+                    targetActor = Actors.getActor(cursor.getXy());
                     if (targetActor == null || targetActor.equals(selectedActor)) {//单击的坐标上没有角色，或者有角色但是自己
-                        cursorLastXY[0] = selectedActor.getXyInMapTile()[0];//保存移动前角色的坐标
-                        cursorLastXY[1] = selectedActor.getXyInMapTile()[1];
-                        Log.d("XY_BEFORE_MOVE", cursorLastXY[0] + "," + cursorLastXY[1]);
-                        move.setMovePath(cursorXY);//设置到单击坐标的移动路径
+                        cursor.setLastXy(selectedActor.getXyInMapTile());//保存移动前角色的坐标
+                        Log.d("XY_BEFORE_MOVE", cursor.getLastXy()[0] + "," + cursor.getLastXy()[1]);
+                        rangeHelper.setMovePath(cursor.getXy());//设置到单击坐标的移动路径
                         GAME_CASE = Values.CASE_MOVING;
                         Log.d("GAME_CASE", "MOVING");
                     } else {//单击的坐标上有角色，也不是自己，那么选中该角色
-                        selectedActor.lostCursor();
                         selectedActor = targetActor;
-                        selectedActor.getCursor();
                         GAME_CASE = Values.CASE_NORMAL;
                         Log.d("GAME_CASE", "NORMAL");
                     }
                 } else {//进入移动前状态的不是我方角色，或者这次单击的坐标在可移动范围外
-                    selectedActor.lostCursor();
-                    selectedActor = Actors.getActor(cursorXY);
-                    if (selectedActor != null) {//单击的坐标上有角色，那么选中该角色
-                        selectedActor.getCursor();
-                    }
+                    selectedActor = Actors.getActor(cursor.getXy());
                     GAME_CASE = Values.CASE_NORMAL;
                     Log.d("GAME_CASE", "NORMAL");
                 }
@@ -311,8 +319,13 @@ public class GameView extends SurfaceView
             case Values.CASE_AFTER_MOVE:
                 switch (actorAction.checkAction(xyInScrPx)) {
                     case ActorAction.ACTION_ATTACK:
-                        cursorXY[0] = selectedActor.getXyInMapTile()[0];
-                        cursorXY[1] = selectedActor.getXyInMapTile()[1];
+                        cursor.setXy(actorAction.getTargetList().get(0).getXyInMapTile());
+                        targetActor = Actors.getActor(cursor.getXy());
+                        selectedActor.setCanAttack(true);
+                        if (rangeHelper.getAttackRange(targetActor).contains(selectedActor.getXyInMapTile()))
+                            targetActor.setCanAttack(true);//目标能反击
+                        else
+                            targetActor.setCanAttack(false);//目标不能反击
                         GAME_CASE = Values.CASE_BEFORE_ACT;//行动前，选择行动目标
                         Log.d("GAME_CASE", "BEFORE_ACT");
                         break;
@@ -320,29 +333,33 @@ public class GameView extends SurfaceView
                         break;
                     case ActorAction.ACTION_STANDBY:
                         selectedActor.standby();//角色待机
-                        cursorXY[0] = selectedActor.getXyInMapTile()[0];
-                        cursorXY[1] = selectedActor.getXyInMapTile()[1];
+                        cursor.setXy(cursor.getLastXy());
                         GAME_CASE = Values.CASE_NORMAL;
                         Log.d("GAME_CASE", "NORMAL");
                         break;
                     case ActorAction.ACTION_FAILED://单击的行动选项不可用，或单击选项外的区域，取消移动
-                        selectedActor.setXyInMapTile(cursorLastXY);
-                        cursorXY[0] = cursorLastXY[0];
-                        cursorXY[1] = cursorLastXY[1];
-                        GAME_CASE = Values.CASE_NORMAL;
+                        selectedActor.setXyInMapTile(cursor.getLastXy());
+                        selectedActor.lostCursor();
+                        cursor.setXy(cursor.getLastXy());
+                        rangeHelper.setSrcActor(selectedActor);//设置移动起始角色，计算移动范围和攻击范围
+                        GAME_CASE = Values.CASE_BEFORE_MOVE;//进入移动前状态
                         Log.d("GAME", "MOVE_CANCEL");
-                        Log.d("GAME_CASE", "NORMAL");
+                        Log.d("GAME_CASE", "BEFORE_MOVE");
                         break;
                 }
                 break;
             //行动前，选择攻击目标和显示战斗信息
             case Values.CASE_BEFORE_ACT:
-                targetActor = actorAction.getTargetActor(cursorXY);
+                targetActor = actorAction.getTargetActor(cursor.getXy());
                 if (targetActor == null) {//单击点无目标，取消行动
                     GAME_CASE = Values.CASE_AFTER_MOVE;
                     Log.d("GAME", "ACT_CANCEL");
                     Log.d("GAME_CASE", "AFTER_MOVE");
+                } else if (rangeHelper.getAttackRange(targetActor).contains(selectedActor.getXyInMapTile())) {
+                    targetActor.setCanAttack(true);//目标能反击
+                    Log.d("Target", targetActor.getName());
                 } else {
+                    targetActor.setCanAttack(false);//目标不能反击
                     Log.d("Target", targetActor.getName());
                 }
                 break;
@@ -389,8 +406,7 @@ public class GameView extends SurfaceView
         xyInMapTile[1] = xyInMapPx[1] / Values.MAP_TILE_HEIGHT;
 
         //光标移到新坐标
-        cursorXY[0] = xyInMapTile[0];
-        cursorXY[1] = xyInMapTile[1];
+        cursor.setXy(xyInMapTile);
 
         //双击点在屏幕哪个区域
         isLeft = xyInScrPx[0] < Values.SCREEN_WIDTH / 2;
@@ -399,15 +415,12 @@ public class GameView extends SurfaceView
         switch (GAME_CASE) {
             //通常
             case Values.CASE_NORMAL:
-                if (selectedActor != null)
-                    selectedActor.lostCursor();
-                selectedActor = Actors.getActor(cursorXY);
+                selectedActor = Actors.getActor(cursor.getXy());
                 if (selectedActor == null || selectedActor.isStandby()) {//双击空白处或已待机角色，显示游戏选项
                     GAME_CASE = Values.CASE_SHOW_GAME_OPTIONS;
                     Log.d("GAME_CASE", "SHOW_GAME_OPTIONS");
                 } else {//双击未待机角色，显示移动范围
-                    selectedActor.getCursor();
-                    move.setSrcActor(selectedActor);//设置移动起始角色，计算移动范围和攻击范围
+                    rangeHelper.setSrcActor(selectedActor);//设置移动起始角色，计算移动范围和攻击范围
                     GAME_CASE = Values.CASE_BEFORE_MOVE;//进入移动前状态
                     Log.d("GAME_CASE", "BEFORE_MOVE");
                 }
@@ -417,11 +430,17 @@ public class GameView extends SurfaceView
                 break;
             //行动前阶段，确定行动目标
             case Values.CASE_BEFORE_ACT:
-                targetActor = actorAction.getTargetActor(cursorXY);
+                targetActor = actorAction.getTargetActor(cursor.getXy());
                 if (targetActor == null) {//单击点无目标，取消行动
                     GAME_CASE = Values.CASE_AFTER_MOVE;
                     Log.d("GAME_CASE", "AFTER_MOVE");
                 } else {//双击点有目标，开始行动
+                    lastXY = selectedActor.getXyInMapTile();
+                    selectedActor.setCanAttack(true);
+                    if (rangeHelper.getAttackRange(targetActor).indexOf(selectedActor.getXyInMapTile()) != -1)
+                        targetActor.setCanAttack(true);//目标能反击
+                    else
+                        targetActor.setCanAttack(false);//目标不能反击
                     GAME_CASE = Values.CASE_ACTING;
                     Log.d("GAME_CASE", "ACTING");
                     Log.d("TARGET", targetActor.getName());
@@ -472,25 +491,22 @@ public class GameView extends SurfaceView
 
     //阶段结束
     public static void PhaseOver(){
-        for (Actor actor:actors.values()){
+        for (Actor actor: Actors.actors) {
             actor.awake();
         }
-        Log.d("TURN_PHASE", Values.PARTIES[NOW_PARTY] + " Phase Over");
+        Log.d("TURN_PHASE", Values.PARTY_NAME[NOW_PARTY] + " Phase Over");
         TURN_PHASE++;
-        if (TURN_PHASE == PARTY_COUNT)//所有阵营行动完，回合结束
+        if (TURN_PHASE == PARTY_COUNT) {//所有阵营行动完，回合结束
             TurnOver();
-        TURN_PHASE = TURN_PHASE%PARTY_COUNT;
-        NOW_PARTY = PARTIES[TURN_PHASE];
-        Log.d("TURN_PHASE", Values.PARTIES[NOW_PARTY] + " Phase Start");
-
+        } else {
+            NOW_PARTY = PARTY_INDEX[TURN_PHASE];
+            Log.d("TURN_PHASE", Values.PARTY_NAME[NOW_PARTY] + " Phase Start");
+        }
     }
 
 
     //回合结束
     public static void TurnOver(){
-        for (Actor actor:actors.values()){
-            actor.awake();
-        }
         Log.d("GAME_TURN", GAME_TURN+" Turn Over");
         TURN_PHASE = Values.PARTY_PLAYER;
         GAME_TURN += 1;
@@ -498,18 +514,41 @@ public class GameView extends SurfaceView
     }
 
     public void setParties() {
-        PARTY_COUNT = 0;
-        int[] count = new int[Values.PARTY_COUNT];
-        PARTIES = new int[Values.PARTY_COUNT];
-        for (Actor actor : actors.values()) {
-            count[actor.getParty()]++;
-        }
-        for (int i = 0,j=0; i < Values.PARTY_COUNT; i++) {
-            if (count[i] > 0){
-                PARTY_COUNT++;
-                PARTIES[j] = i;
-                j++;
+        PARTY_COUNT = 0;//阵营数置0
+        PARTY_INDEX = new int[Values.PARTY_COUNT];
+        parties = new HashMap<>();
+        ArrayList<Actor> player = new ArrayList<>();
+        ArrayList<Actor> ally = new ArrayList<>();
+        ArrayList<Actor> enemy = new ArrayList<>();
+        for (Actor actor : Actors.actors) {
+            switch (actor.getParty()) {
+                case Values.PARTY_PLAYER:
+                    player.add(actor);
+                    break;
+                case Values.PARTY_ALLY:
+                    ally.add(actor);
+                    break;
+                case Values.PARTY_ENEMY:
+                    enemy.add(actor);
+                    break;
             }
+        }
+
+
+        if (!player.isEmpty()) {
+            PARTY_INDEX[PARTY_COUNT] = Values.PARTY_PLAYER;
+            PARTY_COUNT++;
+            parties.put("Player", player);
+        }
+        if (!ally.isEmpty()) {
+            PARTY_INDEX[PARTY_COUNT] = Values.PARTY_ALLY;
+            PARTY_COUNT++;
+            parties.put("Ally", ally);
+        }
+        if (!enemy.isEmpty()) {
+            PARTY_INDEX[PARTY_COUNT] = Values.PARTY_ENEMY;
+            PARTY_COUNT++;
+            parties.put("Enemy", enemy);
         }
     }
 

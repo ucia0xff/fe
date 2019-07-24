@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actor>
+    <!--配置信息-->
+    <party>1</party><!--阵营，0我军，1友军，2敌军-->
+    <xy>7,16</xy><!--坐标，以坐上角格子为0,0-->
+
+    <!--角色信息-->
+    <actor-key>Innes</actor-key><!--角色标识-->
+    <career-key>Sniper</career-key><!--职业标识-->
+    <name>希尼亚斯</name><!--角色名-->
+    <info>弗雷利亚王子，自信心很强，虽嘴巴毒辣，但实际上是个好人。</info><!--角色说明-->
+    <face>Innes.png</face><!--角色头像，不写则使用职业头像-->
+    <affin>4</affin><!--相性，不写和0无，1"炎"，2"雷"，3"风"，4"冰"，5"暗"，6"光"，7"理"-->
+
+    <!--角色能力修正（相对于职业初始能力，负数为降低，正数为提高，不写和0为不变）-->
+    <adj-lv>1</adj-lv><!--等级-->
+    <adj-mhp>7</adj-mhp><!--最大HP-->
+    <adj-str>7</adj-str><!--力量-->
+    <adj-mag>4</adj-mag><!--魔力-->
+    <adj-skl>7</adj-skl><!--技术-->
+    <adj-spd>10</adj-spd><!--速度-->
+    <adj-luc>14</adj-luc><!--幸运-->
+    <adj-def>5</adj-def><!--守备-->
+    <adj-res>7</adj-res><!--魔防-->
+    <adj-mov></adj-mov><!--移动-->
+    <adj-con>1</adj-con><!--体格-->
+
+    <!--角色成长率，不写则使用职业成长率-->
+    <grow-mhp>60</grow-mhp>
+    <grow-str>40</grow-str>
+    <grow-mag>25</grow-mag>
+    <grow-skl>40</grow-skl>
+    <grow-spd>45</grow-spd>
+    <grow-luc>45</grow-luc>
+    <grow-def>20</grow-def>
+    <grow-res>25</grow-res>
+
+    <!--武器熟练度，不写则使用职业武器熟练度-->
+    <exp-swd></exp-swd>
+    <exp-lan></exp-lan>
+    <exp-axe></exp-axe>
+    <exp-bow>181</exp-bow>
+    <exp-stf></exp-stf>
+    <exp-anm></exp-anm>
+    <exp-lgt></exp-lgt>
+    <exp-drk></exp-drk>
+
+    <items>LongBow</items>
+</actor>

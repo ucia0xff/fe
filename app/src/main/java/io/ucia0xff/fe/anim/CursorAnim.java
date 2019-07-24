@@ -8,24 +8,16 @@ import android.graphics.Rect;
 import io.ucia0xff.fe.Values;
 
 public class CursorAnim extends Anim {
-    /**
-     * 构造方法
-     * @param resId 所有动画帧的资源ID
-     * @param isLoop 是否循环播放
-     */
-    public CursorAnim(int[] resId, boolean isLoop) {
-        super(resId, isLoop);
+
+    public CursorAnim(int[] resId) {
+        super(resId);
         src = new Rect(0, 0, getFrame().getWidth(), getFrame().getHeight());
         dst = Values.MAP_ANIM_SIZE_32x32;
     }
 
-    /**
-     * 构造方法
-     * @param frames 所有动画帧
-     * @param isLoop 是否循环播放
-     */
-    public CursorAnim(Bitmap[] frames, boolean isLoop) {
-        super(frames, isLoop);
+
+    public CursorAnim(Bitmap[] frames) {
+        super(frames);
         src = new Rect(0, 0, getFrame().getWidth(), getFrame().getHeight());
         dst = Values.MAP_ANIM_SIZE_32x32;
     }
